@@ -34,4 +34,3 @@ print(compileString)
 
 # Run our command
 os.system(compileString)
-os.system("cp " + EXECUTABLE + " Games/")
