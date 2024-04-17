@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Application.cpp" />
+    <ClCompile Include="src\bindings.cpp" />
+    <ClCompile Include="src\Camera.cpp" />
+    <ClCompile Include="src\components\Behavior.cpp" />
+    <ClCompile Include="src\components\BoxColliderComponent.cpp" />
+    <ClCompile Include="src\components\CircleColliderComponent.cpp" />
+    <ClCompile Include="src\components\CircleRenderer.cpp" />
+    <ClCompile Include="src\components\ColliderComponent.cpp" />
+    <ClCompile Include="src\components\Component.cpp" />
+    <ClCompile Include="src\components\HullColliderComponent.cpp" />
+    <ClCompile Include="src\components\PolygonRenderer.cpp" />
+    <ClCompile Include="src\components\Renderer.cpp" />
+    <ClCompile Include="src\components\RigidbodyComponent.cpp" />
+    <ClCompile Include="src\components\ShapeRenderer.cpp" />
+    <ClCompile Include="src\components\SpriteRenderer.cpp" />
+    <ClCompile Include="src\components\TransformComponent.cpp" />
+    <ClCompile Include="src\Deserializer.cpp" />
+    <ClCompile Include="src\GameObject.cpp" />
+    <ClCompile Include="src\MathHelpers.cpp" />
+    <ClCompile Include="src\physics\BoxCollider.cpp" />
+    <ClCompile Include="src\physics\CircleCollider.cpp" />
+    <ClCompile Include="src\physics\Collision.cpp" />
+    <ClCompile Include="src\physics\CollisionPoints.cpp" />
+    <ClCompile Include="src\physics\CollisionWorld.cpp" />
+    <ClCompile Include="src\physics\DynamicsWorld.cpp" />
+    <ClCompile Include="src\physics\HullCollider.cpp" />
+    <ClCompile Include="src\physics\ImpulseSolver.cpp" />
+    <ClCompile Include="src\physics\PhysicsHelpers.cpp" />
+    <ClCompile Include="src\physics\PositionSolver.cpp" />
+    <ClCompile Include="src\physics\Simplex.cpp" />
+    <ClCompile Include="src\Serializable.cpp" />
+    <ClCompile Include="src\TextureManager.cpp" />
+    <ClCompile Include="src\Transform.cpp" />
+    <ClCompile Include="src\Vector2.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\Application.hpp" />
+    <ClInclude Include="include\Bruggles.hpp" />
+    <ClInclude Include="include\Camera.hpp" />
+    <ClInclude Include="include\Components.hpp" />
+    <ClInclude Include="include\components\Behavior.hpp" />
+    <ClInclude Include="include\components\BoxColliderComponent.hpp" />
+    <ClInclude Include="include\components\CircleColliderComponent.hpp" />
+    <ClInclude Include="include\components\CircleRenderer.hpp" />
+    <ClInclude Include="include\components\ColliderComponent.hpp" />
+    <ClInclude Include="include\components\Component.hpp" />
+    <ClInclude Include="include\components\HullColliderComponent.hpp" />
+    <ClInclude Include="include\components\PolygonRenderer.hpp" />
+    <ClInclude Include="include\components\Renderer.hpp" />
+    <ClInclude Include="include\components\RigidbodyComponent.hpp" />
+    <ClInclude Include="include\components\ShapeRenderer.hpp" />
+    <ClInclude Include="include\components\SpriteRenderer.hpp" />
+    <ClInclude Include="include\components\TransformComponent.hpp" />
+    <ClInclude Include="include\Deserializer.hpp" />
+    <ClInclude Include="include\GameObject.hpp" />
+    <ClInclude Include="include\MathHelpers.hpp" />
+    <ClInclude Include="include\Physics.hpp" />
+    <ClInclude Include="include\physics\BoxCollider.hpp" />
+    <ClInclude Include="include\physics\CircleCollider.hpp" />
+    <ClInclude Include="include\physics\Collider.hpp" />
+    <ClInclude Include="include\physics\Collision.hpp" />
+    <ClInclude Include="include\physics\CollisionEvent.hpp" />
+    <ClInclude Include="include\physics\CollisionObject.hpp" />
+    <ClInclude Include="include\physics\CollisionPoints.hpp" />
+    <ClInclude Include="include\physics\CollisionWorld.hpp" />
+    <ClInclude Include="include\physics\DynamicsWorld.hpp" />
+    <ClInclude Include="include\physics\HullCollider.hpp" />
+    <ClInclude Include="include\physics\ImpulseSolver.hpp" />
+    <ClInclude Include="include\physics\PhysicsHelpers.hpp" />
+    <ClInclude Include="include\physics\PositionSolver.hpp" />
+    <ClInclude Include="include\physics\Rigidbody.hpp" />
+    <ClInclude Include="include\physics\Simplex.hpp" />
+    <ClInclude Include="include\physics\Solver.hpp" />
+    <ClInclude Include="include\Serializable.hpp" />
+    <ClInclude Include="include\TextureManager.hpp" />
+    <ClInclude Include="include\Transform.hpp" />
+    <ClInclude Include="include\Vector2.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SDL2.dll" />
+    <None Include="SDL2_image.dll" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{fd323cb1-247f-4a91-9714-efcf982fe489}</ProjectGuid>
+    <RootNamespace>BrugglesGameEngine</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>C:\Users\bkarm\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.10_qbz5n2kfra8p0\LocalCache\local-packages\Python310\site-packages\pybind11\include;C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.10_3.10.3056.0_x64__qbz5n2kfra8p0\Include;C:\SDL2_image\include;C:\Users\bkarm\source\repos\BrugglesGameEngine\BrugglesGameEngine\include;C:\SDL2\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.10_3.10.3056.0_x64__qbz5n2kfra8p0\libs;C:\SDL2_image\lib\x64;C:\SDL2\lib\x64;$(LibraryPath)</LibraryPath>
+    <SourcePath>C:\Users\bkarm\source\repos\BrugglesGameEngine\BrugglesGameEngine\src;$(SourcePath)</SourcePath>
+    <TargetExt>.pyd</TargetExt>
+    <TargetName>bruggles</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.10_3.10.3056.0_x64__qbz5n2kfra8p0\libs;C:\SDL2_image\lib\x64;C:\SDL2\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2_image.lib;python3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
