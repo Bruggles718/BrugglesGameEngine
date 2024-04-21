@@ -54,6 +54,8 @@ namespace bruggles {
                     bCollisionPoints.HasCollision = collision.Points.HasCollision;
                     bCollisionPoints.Depth = collision.Points.Depth;
                     bCollisionPoints.Normal = -collision.Points.Normal;
+                    bCollision.Points = bCollisionPoints;
+                    b(bCollision, i_deltaTime);
                 }
             }
         }
