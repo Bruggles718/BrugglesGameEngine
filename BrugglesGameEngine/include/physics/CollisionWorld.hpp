@@ -49,12 +49,5 @@ namespace bruggles {
 
             Uint64 m_nextUniqueID = 0;
         };
-
-        struct EndPoint {
-            CollisionObject* object;
-            Uint64 id = 0;
-            float value = 0.0f;
-            bool isMin = false;
-        };
     }
 }
