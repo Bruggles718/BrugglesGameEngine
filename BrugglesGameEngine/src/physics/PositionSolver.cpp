@@ -44,11 +44,11 @@ namespace bruggles {
                 Rigidbody* b = i_collisions[i].B->IsDynamic ? static_cast<Rigidbody*>(i_collisions[i].B) : nullptr;
 
                 if (a ? a->IsSimulated : false) {
-                    a->transform->Position = a->transform->Position + deltas[i].first;
+                    a->GetTransform().Position = a->GetTransform().Position + deltas[i].first;
                 }
 
                 if (b ? b->IsSimulated : false) {
-                    b->transform->Position = b->transform->Position - deltas[i].second;
+                    b->GetTransform().Position = b->GetTransform().Position - deltas[i].second;
                 }
             }
         }

@@ -1,5 +1,7 @@
 #include "physics/DynamicsWorld.hpp"
 #include <math.h>
+#include "components/TransformComponent.hpp"
+#include <pybind11/pybind11.h>
 
 namespace bruggles {
     namespace physics {
@@ -19,7 +21,7 @@ namespace bruggles {
                 if (!obj->IsDynamic) continue;
                 Rigidbody* body = static_cast<Rigidbody*>(obj);
                 if (!body->IsSimulated) continue;
-
+                body->UpdateLastTransform();
                 if (body->TakesGravity) {
                     body->Force = body->Force + ((m_gravity * body->Mass));
                 } else {
@@ -27,10 +29,19 @@ namespace bruggles {
                 }
 
                 body->Velocity = body->Velocity + ((body->Force / body->Mass) * i_deltaTime);
-                body->transform->Position = body->transform->Position + (body->Velocity * i_deltaTime);
+                body->GetTransform().Position = body->GetTransform().Position + (body->Velocity * i_deltaTime);
                 body->Velocity = body->Velocity * std::max(1 - i_deltaTime * body->Drag, 0.0f);
 
                 body->Force = Vector2::Zero();
+
+                /*if (body->m_gameObject) {
+                    pybind11::object PyTf = pybind11::module::import("bruggles").attr("TransformComponent");
+                    pybind11::object pytfComp = body->m_gameObject->GetComponent(PyTf);
+                    components::TransformComponent tfComp = pytfComp.cast<bruggles::components::TransformComponent>();
+                    std::shared_ptr<Transform> tf = tfComp.GetTransform();
+                    tf->Position = body->GetTransform().Position;
+
+                }*/
             }
 
             ResolveCollisions(i_deltaTime);

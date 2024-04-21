@@ -6,6 +6,8 @@
 #include <pybind11/embed.h>
 #include "Deserializer.hpp"
 #include <SDL_image.h>
+#include "components/TransformComponent.hpp"
+#include <iostream>
 
 namespace py = pybind11;
 
@@ -326,6 +328,30 @@ namespace bruggles {
                 }
 
                 LateUpdate(deltaTime);
+
+                for (std::shared_ptr<bruggles::GameObject>& object : m_gameObjects) {
+                    if (!object->IsActive()) {
+                        continue;
+                    }
+                    pybind11::object PyRb = pybind11::module::import("bruggles").attr("RigidbodyComponent");
+                    pybind11::object pyrbComp = object->GetComponent(PyRb);
+                    if (pyrbComp.ptr() == pybind11::cast<pybind11::none>(Py_None).ptr()) {
+                        continue;
+                    }
+                    components::RigidbodyComponent rbComp = pyrbComp.cast<bruggles::components::RigidbodyComponent>();
+                    std::shared_ptr<physics::Rigidbody> rb = rbComp.GetRigidbody();
+
+                    if (!rb->IsDynamic || !rb->IsSimulated) {
+                        continue;
+                    }
+
+                    if (!object->m_transform) {
+                        continue;
+                    }
+                    Transform* tf = object->m_transform;
+                    tf->Position = Vector2::Lerp(rb->GetLastTransform().Position, rb->GetTransform().Position, accumulator / fixedDeltaTime);
+                    tf->Position = rb->GetTransform().Position;
+                }
             }
 
             Render();

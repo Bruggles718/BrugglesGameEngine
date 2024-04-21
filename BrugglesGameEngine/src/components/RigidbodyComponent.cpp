@@ -21,9 +21,13 @@ namespace bruggles {
         void RigidbodyComponent::_SetGameObject(GameObject* i_object) {
             pybind11::object PyTf = pybind11::module::import("bruggles").attr("TransformComponent");
             pybind11::object pytfComp = i_object->GetComponent(PyTf);
-            std::shared_ptr<Transform> tf = pytfComp.cast<bruggles::components::TransformComponent>().GetTransform();
+            TransformComponent tfComp = pytfComp.cast<bruggles::components::TransformComponent>();
+            std::shared_ptr<Transform> tf = tfComp.GetTransform();
             m_rigidbody->m_gameObject = i_object;
-            m_rigidbody->transform = tf.get();
+            //m_rigidbody->transform = tf.get();
+            m_rigidbody->SetTransform(tf.get());
+            m_rigidbody->UpdateLastTransform();
+            i_object->m_transform = tf.get();
 
             m_rigidbody->OnCollision = [i_object](physics::Collision i_c, float i_deltaTime) {
                 physics::CollisionEvent e;

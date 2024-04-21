@@ -7,6 +7,7 @@
 #include "physics/Collision.hpp"
 #include "physics/CollisionEvent.hpp"
 #include "Serializable.hpp"
+#include "physics/Rigidbody.hpp"
 
 typedef uint64_t Uint64;
 
@@ -55,6 +56,8 @@ namespace bruggles {
         void OnGameObjectRemoved();
 
         Uint64 GetUniqueID();
+
+        Transform* m_transform;
 
     private:
         std::string m_name;

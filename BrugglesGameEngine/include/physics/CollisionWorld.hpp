@@ -41,11 +41,20 @@ namespace bruggles {
 
             Uint64 GenerateUniqueID();
 
+            std::vector<std::pair<CollisionObject*, CollisionObject*>> GetSweepAndPrunePairs();
+
         protected:
             std::vector<CollisionObject*> m_objects;
             std::vector<Solver*> m_solvers;
 
             Uint64 m_nextUniqueID = 0;
+        };
+
+        struct EndPoint {
+            CollisionObject* object;
+            Uint64 id = 0;
+            float value = 0.0f;
+            bool isMin = false;
         };
     }
 }

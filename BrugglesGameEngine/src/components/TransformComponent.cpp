@@ -1,5 +1,7 @@
 #include "components/TransformComponent.hpp"
 #include <pybind11/embed.h>
+#include "components/RigidbodyComponent.hpp"
+#include <iostream>
 
 namespace py = pybind11;
 
@@ -30,14 +32,41 @@ namespace bruggles {
 
         void TransformComponent::SetPosition(Vector2 i_position) {
             m_transform->Position = i_position;
+            if (!m_gameObject) return;
+            pybind11::object PyRb = pybind11::module::import("bruggles").attr("RigidbodyComponent");
+            pybind11::object pyrbComp = m_gameObject->GetComponent(PyRb);
+            if (pyrbComp.ptr() == pybind11::cast<pybind11::none>(Py_None).ptr()) {
+                return;
+            }
+            RigidbodyComponent rbComp = pyrbComp.cast<bruggles::components::RigidbodyComponent>();
+            std::shared_ptr<physics::Rigidbody> rb = rbComp.GetRigidbody();
+            rb->SetTransform(m_transform.get());
         }
 
         void TransformComponent::SetRotation(float i_rotation) {
             m_transform->Rotation = i_rotation;
+            if (!m_gameObject) return;
+            pybind11::object PyRb = pybind11::module::import("bruggles").attr("RigidbodyComponent");
+            pybind11::object pyrbComp = m_gameObject->GetComponent(PyRb);
+            if (pyrbComp.ptr() == pybind11::cast<pybind11::none>(Py_None).ptr()) {
+                return;
+            }
+            RigidbodyComponent rbComp = pyrbComp.cast<bruggles::components::RigidbodyComponent>();
+            std::shared_ptr<physics::Rigidbody> rb = rbComp.GetRigidbody();
+            rb->SetTransform(m_transform.get());
         }
 
         void TransformComponent::SetScale(Vector2 i_scale) {
             m_transform->Scale = i_scale;
+            if (!m_gameObject) return;
+            pybind11::object PyRb = pybind11::module::import("bruggles").attr("RigidbodyComponent");
+            pybind11::object pyrbComp = m_gameObject->GetComponent(PyRb);
+            if (pyrbComp.ptr() == pybind11::cast<pybind11::none>(Py_None).ptr()) {
+                return;
+            }
+            RigidbodyComponent rbComp = pyrbComp.cast<bruggles::components::RigidbodyComponent>();
+            std::shared_ptr<physics::Rigidbody> rb = rbComp.GetRigidbody();
+            rb->SetTransform(m_transform.get());
         }
 
         std::shared_ptr<Transform> TransformComponent::GetTransform() {

@@ -5,10 +5,10 @@
 #include "physics/Collider.hpp"
 #include "Transform.hpp"
 #include "physics/Collision.hpp"
-#include "GameObject.hpp"
 #include <unordered_map>
 
 namespace bruggles {
+    class GameObject;
     namespace physics {
         /**
          * Represents a static object in a physics world.
@@ -17,7 +17,6 @@ namespace bruggles {
             Uint64 m_uniqueID;
 
             Collider* collider;
-            Transform* transform;
 
             bool IsDynamic = true; /**< Whether or not this object has forces or velocity applied to it.*/
             bool IsTrigger = false; /**< Whether or not this object is a trigger. Triggers do not have dynamic solvers applied to them.*/
@@ -25,6 +24,28 @@ namespace bruggles {
             std::function<void(Collision, float)> OnCollision; /**< The callback to be fired when a collision is detected for this object*/
 
             GameObject* m_gameObject;
+
+            Transform& GetTransform();
+
+            Transform& GetLastTransform();
+
+            void SetTransform(Transform* tf);
+
+            void UpdateLastTransform();
+
+            std::pair<Vector2, Vector2> TopLeftBottomRightAABB();
+
+        protected:
+            Transform m_transform{
+                Vector2(0, 0),
+                0.0f,
+                Vector2(1, 1)
+            };
+            Transform m_lastTransform{
+                Vector2(0, 0),
+                0.0f,
+                Vector2(1, 1)
+            };
         };
     }
 }

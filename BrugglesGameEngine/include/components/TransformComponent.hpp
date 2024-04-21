@@ -6,6 +6,7 @@
 #include "Vector2.hpp"
 #include "components/Component.hpp"
 #include "Serializable.hpp"
+#include <physics/Rigidbody.hpp>
 
 namespace bruggles {
     namespace components {
@@ -53,6 +54,7 @@ namespace bruggles {
             std::shared_ptr<Transform> GetTransform();
 
             std::string Serialize() override;
+
         private:
             std::shared_ptr<Transform> m_transform;
         };
