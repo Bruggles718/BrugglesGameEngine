@@ -44,6 +44,7 @@ PYBIND11_MODULE(bruggles, m){
         .def(py::init<int,int,bool>(), py::arg("i_w"), py::arg("i_h"), py::arg("i_editorMode"))   // our constructor
         .def(py::init<std::string, int,int,bool>(), py::arg("i_windowName"), py::arg("i_w"), py::arg("i_h"), py::arg("i_editorMode"))
         .def(py::init<std::string, int,int>(), py::arg("i_windowName"), py::arg("i_w"), py::arg("i_h"))
+        .def("SetWindowTitle", &bruggles::Application::SetWindowTitle)
         .def("Loop", &bruggles::Application::Loop)
         .def("EditorUpdate", &bruggles::Application::EditorUpdate)
         .def("AddGameObject", &bruggles::Application::AddGameObject)

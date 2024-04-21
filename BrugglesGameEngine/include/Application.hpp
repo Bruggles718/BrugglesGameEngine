@@ -24,6 +24,8 @@ namespace bruggles {
 
         ~Application();
 
+        void SetWindowTitle(std::string i_windowTitle);
+
         /**
          * Main Application Loop when not running in editor mode
         */

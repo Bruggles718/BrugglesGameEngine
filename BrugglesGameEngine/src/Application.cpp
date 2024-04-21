@@ -60,6 +60,10 @@ namespace bruggles {
         SDL_Quit();
     }
 
+    void Application::SetWindowTitle(std::string i_windowTitle) {
+        SDL_SetWindowTitle(m_window, i_windowTitle.c_str());
+    }
+
     Uint64 Application::Time() {
         return SDL_GetTicks64();
     }
