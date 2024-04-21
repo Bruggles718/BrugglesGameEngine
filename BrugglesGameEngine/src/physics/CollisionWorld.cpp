@@ -71,6 +71,27 @@ namespace bruggles {
             points.insert(points.begin() + points.size(), pointToInsert);
         }
 
+        void BinaryInsert(std::vector<EndPoint>& points, EndPoint& pointToInsert) {
+            int low = 0;
+            int high = points.size() - 1;
+
+            while (low <= high) {
+                int mid = low + ((high - low) / 2);
+                if (pointToInsert.value == points[mid].value) {
+                    low = mid + 1;
+                    break;
+                }
+                else if (pointToInsert.value > points[mid].value) {
+                    low = mid + 1;
+                }
+                else {
+                    high = mid - 1;
+                }
+            }
+
+            points.insert(points.begin() + low, pointToInsert);
+        }
+
         std::vector<std::pair<CollisionObject*, CollisionObject*>> CollisionWorld::GetSweepAndPrunePairs() {
 
             std::vector<EndPoint> xPoints{};
@@ -116,11 +137,12 @@ namespace bruggles {
                 //std::cout << object->m_uniqueID << " x bounds: " << minX.value << " " << maxX.value << std::endl;
                 //std::cout << object->m_uniqueID << " y bounds: " << minY.value << " " << maxY.value << std::endl;
 
-                Insert(xPoints, minX);
-                Insert(xPoints, maxX);
-                Insert(yPoints, minY);
-                Insert(yPoints, maxY);
+                BinaryInsert(xPoints, minX);
+                BinaryInsert(xPoints, maxX);
+                BinaryInsert(yPoints, minY);
+                BinaryInsert(yPoints, maxY);
             }
+
 
             /*std::cout << "x end points" << std::endl;
             for (EndPoint e : xPoints) {
