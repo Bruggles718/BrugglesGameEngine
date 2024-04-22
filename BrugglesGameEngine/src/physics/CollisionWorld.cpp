@@ -82,6 +82,10 @@ namespace bruggles {
             yPoints.reserve(m_objects.size() * 2);
 
             std::unordered_map<Uint64, std::pair<Vector2, Vector2>> tlbrs{};
+            float minX = FLT_MAX;
+            float maxX = FLT_MIN;
+            float minY = FLT_MAX;
+            float maxY = FLT_MIN;
 
             for (CollisionObject* object : m_objects) {
                 if (!object->collider) {
@@ -97,43 +101,54 @@ namespace bruggles {
                 // Get y min and max
                 // Insert into second list
 
-                EndPoint minX{
+                EndPoint minXEP{
                     object,
                     object->m_uniqueID,
                     topLeftBottomRight.first.x,
                     true
                 };
-                EndPoint maxX{
+
+                if (minX > minXEP.value) {
+                    minX = minXEP.value;
+                }
+
+                EndPoint maxXEP{
                     object,
                     object->m_uniqueID,
                     topLeftBottomRight.second.x,
                     false
                 };
-                EndPoint minY{
+                if (maxX < maxXEP.value) {
+                    maxX = maxXEP.value;
+                }
+                EndPoint minYEP{
                     object,
                     object->m_uniqueID,
                     topLeftBottomRight.first.y,
                     true
                 };
-                EndPoint maxY{
+                if (minY > minYEP.value) {
+                    minY = minYEP.value;
+                }
+                EndPoint maxYEP{
                     object,
                     object->m_uniqueID,
                     topLeftBottomRight.second.y,
                     false
                 };
+                if (maxY < maxYEP.value) {
+                    maxY = maxYEP.value;
+                }
 
-                BinaryInsert(xPoints, minX);
+                /*BinaryInsert(xPoints, minX);
                 BinaryInsert(xPoints, maxX);
                 BinaryInsert(yPoints, minY);
-                BinaryInsert(yPoints, maxY);
+                BinaryInsert(yPoints, maxY);*/
             }
 
-            float minX = xPoints[0].value;
-            float maxX = xPoints[xPoints.size() - 1].value;
-            float minY = yPoints[0].value;
-            float maxY = yPoints[yPoints.size() - 1].value;
 
-            QuadTree root = QuadTree(minX, minY, maxX - minX, maxY - minY, 4);
+
+            QuadTree root = QuadTree(minX, minY, maxX - minX, maxY - minY, 8);
             for (CollisionObject* object : m_objects) {
                 root.Insert(object, tlbrs);
             }
@@ -156,10 +171,14 @@ namespace bruggles {
                 std::vector<Collision> collisions;
                 std::vector<Collision> triggers;
                 //t1 = std::chrono::high_resolution_clock::now();
+                std::unordered_map<Uint64, std::unordered_set<Uint64>> computedCollisions{};
                 for (std::pair<CollisionObject*, CollisionObject*>& pair : result) {
                     auto a = pair.first;
                     auto b = pair.second;
                     if (a == b) continue;
+                    if (computedCollisions[a->m_uniqueID].contains(b->m_uniqueID) || computedCollisions[b->m_uniqueID].contains(a->m_uniqueID)) continue;
+                    computedCollisions[a->m_uniqueID].insert(b->m_uniqueID);
+                    computedCollisions[b->m_uniqueID].insert(a->m_uniqueID);
                     if (a->m_gameObject && !a->m_gameObject->IsActive()) continue;
                     if (b->m_gameObject && !b->m_gameObject->IsActive()) continue;
 

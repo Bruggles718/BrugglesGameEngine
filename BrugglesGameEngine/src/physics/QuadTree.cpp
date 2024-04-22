@@ -17,17 +17,16 @@ namespace bruggles {
 				return false;
 			}
 			std::pair<Vector2, Vector2> tlbr = tlbrs[body->m_uniqueID];
-			float otherW = tlbr.second.x - tlbr.first.x;
-			float otherH = tlbr.second.y - tlbr.first.y;
-
-			float otherX = tlbr.first.x;
-			float otherY = tlbr.first.y;
-
-			SDL_FRect otherRect{ otherX, otherY, otherW, otherH };
-			SDL_FRect myRect{ x, y, w, h };
-			SDL_FRect result{};
-
-			return SDL_IntersectFRect(&myRect, &otherRect, &result);
+			float top = tlbr.first.y;
+			float left = tlbr.first.x;
+			float bottom = tlbr.second.y;
+			float right = tlbr.second.x;
+			return (
+				this->x < right &&
+				this->x + this->w > left &&
+				this->y < bottom &&
+				this->y + this->h > top
+			);
 		}
 
 		bool QuadTree::Insert(CollisionObject* body, std::unordered_map<Uint64, std::pair<Vector2, Vector2>>& tlbrs) {
