@@ -2,6 +2,7 @@
 #include <math.h>
 #include "components/TransformComponent.hpp"
 #include <pybind11/pybind11.h>
+#include <iostream>
 
 namespace bruggles {
     namespace physics {
@@ -16,6 +17,7 @@ namespace bruggles {
         }
 
         void DynamicsWorld::Step(float i_deltaTime) {
+            //auto t1 = std::chrono::high_resolution_clock::now();
             for (CollisionObject* obj : m_objects) {
                 if (obj->m_gameObject && !obj->m_gameObject->IsActive()) continue;
                 if (!obj->IsDynamic) continue;
@@ -43,9 +45,16 @@ namespace bruggles {
 
                 }*/
             }
+            //auto t2 = std::chrono::high_resolution_clock::now();
+            //std::chrono::duration<double, std::milli> ms_double = t2 - t1;
+            //std::cout << "update objects: " << ms_double.count() << "ms\n";
 
+            //t1 = std::chrono::high_resolution_clock::now();
             ResolveCollisions(i_deltaTime);
-            ResolveCollisions(i_deltaTime);
+            //ResolveCollisions(i_deltaTime);
+            //t2 = std::chrono::high_resolution_clock::now();
+            //ms_double = t2 - t1;
+            //std::cout << "resovle collisions twice: " << ms_double.count() << "ms\n";
         }
 
         void DynamicsWorld::SetGravity(Vector2 i_gravity) {

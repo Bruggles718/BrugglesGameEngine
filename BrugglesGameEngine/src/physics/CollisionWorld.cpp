@@ -3,6 +3,7 @@
 #include <unordered_set>
 #include <iostream>
 #include "GameObject.hpp"
+#include <chrono>
 
 namespace bruggles {
     namespace physics {
@@ -220,45 +221,60 @@ namespace bruggles {
         }
 
         void CollisionWorld::ResolveCollisions(float i_deltaTime) {
-            std::vector<Collision> collisions;
-            std::vector<Collision> triggers;
-
             // Get pairs
             // calculate collisions for pairs
+            //auto t1 = std::chrono::high_resolution_clock::now();
             std::vector<std::pair<CollisionObject*, CollisionObject*>> result = GetSweepAndPrunePairs();
+            //auto t2 = std::chrono::high_resolution_clock::now();
 
-            for (std::pair<CollisionObject*, CollisionObject*>& pair : result) {
-                auto a = pair.first;
-                auto b = pair.second;
-                if (a == b) continue;
-                if (a->m_gameObject && !a->m_gameObject->IsActive()) continue;
-                if (b->m_gameObject && !b->m_gameObject->IsActive()) continue;
+            //std::chrono::duration<double, std::milli> ms_double = t2 - t1;
+            //std::cout << "sweep and prune: " << ms_double.count() << "ms\n";
 
-                if (!a->collider || !b->collider) continue;
+            int iterations = 2;
+            for (int i = 0; i < iterations; i++) {
+                std::vector<Collision> collisions;
+                std::vector<Collision> triggers;
+                //t1 = std::chrono::high_resolution_clock::now();
+                for (std::pair<CollisionObject*, CollisionObject*>& pair : result) {
+                    auto a = pair.first;
+                    auto b = pair.second;
+                    if (a == b) continue;
+                    if (a->m_gameObject && !a->m_gameObject->IsActive()) continue;
+                    if (b->m_gameObject && !b->m_gameObject->IsActive()) continue;
 
-                CollisionPoints points = a->collider->CheckCollision(
-                    &a->GetTransform(),
-                    b->collider,
-                    &b->GetTransform()
-                );
+                    if (!a->collider || !b->collider) continue;
 
-                Collision collision = Collision(a, b, points);
+                    CollisionPoints points = a->collider->CheckCollision(
+                        &a->GetTransform(),
+                        b->collider,
+                        &b->GetTransform()
+                    );
 
-                if (points.HasCollision) {
-                    bool trigger = a->IsTrigger || b->IsTrigger;
+                    Collision collision = Collision(a, b, points);
 
-                    if (trigger) {
-                        triggers.emplace_back(a, b, points);
-                    }
-                    else {
-                        collisions.emplace_back(a, b, points);
+                    if (points.HasCollision) {
+                        bool trigger = a->IsTrigger || b->IsTrigger;
+
+                        if (trigger) {
+                            triggers.emplace_back(a, b, points);
+                        }
+                        else {
+                            collisions.emplace_back(a, b, points);
+                        }
                     }
                 }
-            }
+                //t2 = std::chrono::high_resolution_clock::now();
+                //ms_double = t2 - t1;
+                //std::cout << "gjk + epa: " << ms_double.count() << "ms\n";
 
-            SolveCollisions(collisions, i_deltaTime);
-            SendCollisionCallbacks(collisions, i_deltaTime);
-            SendCollisionCallbacks(triggers, i_deltaTime);
+                //t1 = std::chrono::high_resolution_clock::now();
+                SolveCollisions(collisions, i_deltaTime);
+                //t2 = std::chrono::high_resolution_clock::now();
+                //ms_double = t2 - t1;
+                //std::cout << "solve collisions: " << ms_double.count() << "ms\n";
+                SendCollisionCallbacks(collisions, i_deltaTime);
+                SendCollisionCallbacks(triggers, i_deltaTime);
+            }
         }
 
         void CollisionWorld::RenderColliders(Camera* i_camera) {
