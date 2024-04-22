@@ -215,7 +215,6 @@ namespace bruggles {
                 auto& xPointsPotential = xPairs[object->m_uniqueID];
                 auto& yPointsPotential = yPairs[object->m_uniqueID];
                 std::vector<EndPoint> pairs{};
-                //std::vector<Uint64> pairIDs{};
                 std::unordered_set<Uint64> pairIDs{};
                 for (auto& xE : xPointsPotential) {
                     for (auto& yE : yPointsPotential) {
@@ -224,7 +223,6 @@ namespace bruggles {
                             break;
                         }
                     }
-                    //pairs.push_back(xE.object);
                 }
                 for (auto& pairObject : pairs) {
                     if (!pairIDs.contains(pairObject.id)) {
@@ -234,7 +232,6 @@ namespace bruggles {
                 }
             }
 
-            // std::cout << "result size: " << result.size() << std::endl;
 
             return result;
         }
@@ -275,37 +272,6 @@ namespace bruggles {
                     }
                 }
             }
-
-
-            /*for (CollisionObject* a : m_objects) {
-                for (CollisionObject* b: m_objects) {
-                    if (a == b) continue;
-                    if (a->m_gameObject && !a->m_gameObject->IsActive()) continue;
-                    if (b->m_gameObject && !b->m_gameObject->IsActive()) continue;
-
-                    if (!a->collider || !b->collider) continue;
-
-                    CollisionPoints points = a->collider->CheckCollision(
-                        &a->GetTransform(),
-                        b->collider,
-                        &b->GetTransform()
-                    );
-
-                    Collision collision = Collision(a, b, points);
-
-                    if (points.HasCollision) {
-                        bool trigger = a->IsTrigger || b->IsTrigger;
-
-                        if (trigger) {
-                            triggers.emplace_back(a, b, points);
-                        } else {
-                            collisions.emplace_back(a, b, points);
-                        }
-                    }
-                }
-            }*/
-
-            // std::cout << "collisions size: " << collisions.size() << std::endl;
 
             SolveCollisions(collisions, i_deltaTime);
             SendCollisionCallbacks(collisions, i_deltaTime);
