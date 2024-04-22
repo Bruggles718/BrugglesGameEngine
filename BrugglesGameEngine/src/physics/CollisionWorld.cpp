@@ -5,6 +5,7 @@
 #include "GameObject.hpp"
 #include "physics/QuadTree.hpp"
 #include "physics/EndPoint.hpp"
+#include <chrono>
 
 namespace bruggles {
     namespace physics {
@@ -76,7 +77,9 @@ namespace bruggles {
         std::vector<std::pair<CollisionObject*, CollisionObject*>> CollisionWorld::GetSweepAndPrunePairs() {
 
             std::vector<EndPoint> xPoints{};
+            xPoints.reserve(m_objects.size() * 2);
             std::vector<EndPoint> yPoints{};
+            yPoints.reserve(m_objects.size() * 2);
 
             std::unordered_map<Uint64, std::pair<Vector2, Vector2>> tlbrs{};
 
@@ -119,9 +122,6 @@ namespace bruggles {
                     false
                 };
 
-                //std::cout << object->m_uniqueID << " x bounds: " << minX.value << " " << maxX.value << std::endl;
-                //std::cout << object->m_uniqueID << " y bounds: " << minY.value << " " << maxY.value << std::endl;
-
                 BinaryInsert(xPoints, minX);
                 BinaryInsert(xPoints, maxX);
                 BinaryInsert(yPoints, minY);
@@ -142,45 +142,23 @@ namespace bruggles {
         }
 
         void CollisionWorld::ResolveCollisions(float i_deltaTime) {
-            std::vector<Collision> collisions;
-            std::vector<Collision> triggers;
-
             // Get pairs
             // calculate collisions for pairs
+            //auto t1 = std::chrono::high_resolution_clock::now();
             std::vector<std::pair<CollisionObject*, CollisionObject*>> result = GetSweepAndPrunePairs();
+            //auto t2 = std::chrono::high_resolution_clock::now();
 
-            for (std::pair<CollisionObject*, CollisionObject*>& pair : result) {
-                auto a = pair.first;
-                auto b = pair.second;
-                if (a == b) continue;
-                if (a->m_gameObject && !a->m_gameObject->IsActive()) continue;
-                if (b->m_gameObject && !b->m_gameObject->IsActive()) continue;
+            //std::chrono::duration<double, std::milli> ms_double = t2 - t1;
+            //std::cout << "sweep and prune: " << ms_double.count() << "ms\n";
 
-                if (!a->collider || !b->collider) continue;
-
-                CollisionPoints points = a->collider->CheckCollision(
-                    &a->GetTransform(),
-                    b->collider,
-                    &b->GetTransform()
-                );
-
-                Collision collision = Collision(a, b, points);
-
-                if (points.HasCollision) {
-                    bool trigger = a->IsTrigger || b->IsTrigger;
-
-                    if (trigger) {
-                        triggers.emplace_back(a, b, points);
-                    }
-                    else {
-                        collisions.emplace_back(a, b, points);
-                    }
-                }
-            }
-
-
-            /*for (CollisionObject* a : m_objects) {
-                for (CollisionObject* b: m_objects) {
+            int iterations = 2;
+            for (int i = 0; i < iterations; i++) {
+                std::vector<Collision> collisions;
+                std::vector<Collision> triggers;
+                //t1 = std::chrono::high_resolution_clock::now();
+                for (std::pair<CollisionObject*, CollisionObject*>& pair : result) {
+                    auto a = pair.first;
+                    auto b = pair.second;
                     if (a == b) continue;
                     if (a->m_gameObject && !a->m_gameObject->IsActive()) continue;
                     if (b->m_gameObject && !b->m_gameObject->IsActive()) continue;
@@ -200,18 +178,24 @@ namespace bruggles {
 
                         if (trigger) {
                             triggers.emplace_back(a, b, points);
-                        } else {
+                        }
+                        else {
                             collisions.emplace_back(a, b, points);
                         }
                     }
                 }
-            }*/
+                //t2 = std::chrono::high_resolution_clock::now();
+                //ms_double = t2 - t1;
+                //std::cout << "gjk + epa: " << ms_double.count() << "ms\n";
 
-            // std::cout << "collisions size: " << collisions.size() << std::endl;
-
-            SolveCollisions(collisions, i_deltaTime);
-            SendCollisionCallbacks(collisions, i_deltaTime);
-            SendCollisionCallbacks(triggers, i_deltaTime);
+                //t1 = std::chrono::high_resolution_clock::now();
+                SolveCollisions(collisions, i_deltaTime);
+                //t2 = std::chrono::high_resolution_clock::now();
+                //ms_double = t2 - t1;
+                //std::cout << "solve collisions: " << ms_double.count() << "ms\n";
+                SendCollisionCallbacks(collisions, i_deltaTime);
+                SendCollisionCallbacks(triggers, i_deltaTime);
+            }
         }
 
         void CollisionWorld::RenderColliders(Camera* i_camera) {
