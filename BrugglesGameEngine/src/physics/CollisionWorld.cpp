@@ -136,20 +136,11 @@ namespace bruggles {
                     false
                 };
 
-                //std::cout << object->m_uniqueID << " x bounds: " << minX.value << " " << maxX.value << std::endl;
-                //std::cout << object->m_uniqueID << " y bounds: " << minY.value << " " << maxY.value << std::endl;
-
                 BinaryInsert(xPoints, minX);
                 BinaryInsert(xPoints, maxX);
                 BinaryInsert(yPoints, minY);
                 BinaryInsert(yPoints, maxY);
             }
-
-
-            /*std::cout << "x end points" << std::endl;
-            for (EndPoint e : xPoints) {
-                std::cout << e.id << " " << e.value << std::endl;
-            }*/
 
             // go through both lists, and compute pairs
             // store map of id to list of ids
@@ -183,14 +174,6 @@ namespace bruggles {
                     xPairs[pairWithE.id].push_back(e);
                 }
             }
-
-
-            /*for (const auto& [key, value] : xPairs) {
-                std::cout << key << " collides with " << std::endl;
-                for (EndPoint e : value) {
-                    std::cout << e.id << std::endl;
-                }
-            }*/
 
             std::vector<Uint64> insideListY{};
 
