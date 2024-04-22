@@ -213,12 +213,12 @@ namespace bruggles {
         void CollisionWorld::ResolveCollisions(float i_deltaTime) {
             // Get pairs
             // calculate collisions for pairs
-            auto t1 = std::chrono::high_resolution_clock::now();
+            //auto t1 = std::chrono::high_resolution_clock::now();
             std::vector<std::pair<CollisionObject*, CollisionObject*>> result = GetSweepAndPrunePairs();
-            auto t2 = std::chrono::high_resolution_clock::now();
+            //auto t2 = std::chrono::high_resolution_clock::now();
 
-            std::chrono::duration<double, std::milli> ms_double = t2 - t1;
-            std::cout << "sweep and prune: " << ms_double.count() << "ms\n";
+            //std::chrono::duration<double, std::milli> ms_double = t2 - t1;
+            //std::cout << "sweep and prune: " << ms_double.count() << "ms\n";
 
             int iterations = 2;
             for (int i = 0; i < iterations; i++) {
