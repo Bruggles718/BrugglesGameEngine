@@ -224,7 +224,7 @@ namespace bruggles {
             std::vector<std::pair<CollisionObject*, CollisionObject*>>& pairs,
             float i_deltaTime
         ) {
-            int iterations = 4;
+            int iterations = 2;
             for (int i = 0; i < iterations; i++) {
                 std::vector<Collision> collisions;
                 std::vector<Collision> triggers;
@@ -281,7 +281,7 @@ namespace bruggles {
             std::vector<std::pair<CollisionObject*, CollisionObject*>> result = GetSweepAndPrunePairs();
             std::vector<std::vector<std::pair<CollisionObject*, CollisionObject*>>> sublists{};
 
-            int plannedThreadCount = 8;
+            int plannedThreadCount = 2;
 
             sublists.reserve(plannedThreadCount);
 
