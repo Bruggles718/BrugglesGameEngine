@@ -95,7 +95,9 @@ namespace bruggles {
         std::vector<std::pair<CollisionObject*, CollisionObject*>> CollisionWorld::GetSweepAndPrunePairs() {
 
             std::vector<EndPoint> xPoints{};
+            xPoints.reserve(m_objects.size() * 2);
             std::vector<EndPoint> yPoints{};
+            yPoints.reserve(m_objects.size() * 2);
 
             for (CollisionObject* object : m_objects) {
                 if (!object->collider) {
