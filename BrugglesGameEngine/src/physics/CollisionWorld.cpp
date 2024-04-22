@@ -93,13 +93,34 @@ namespace bruggles {
             points.insert(points.begin() + low, pointToInsert);
         }
 
+        void GetPairs(std::vector<EndPoint>& points, std::unordered_map<Uint64, std::vector<EndPoint>>& result) {
+
+            std::vector<Uint64> insideList{};
+
+            for (int i = 0; i < points.size(); i++) {
+                EndPoint& point = points[i];
+                if (point.isMin) {
+                    for (Uint64 insideID : insideList) {
+                        if (insideID != point.id) {
+                            result[insideID].push_back(point);
+                        }
+                    }
+                    insideList.push_back(point.id);
+
+                }
+                else {
+                    auto itr = std::find(insideList.begin(), insideList.end(), point.id);
+                    insideList.erase(itr);
+                }
+            }
+        }
+
         std::vector<std::pair<CollisionObject*, CollisionObject*>> CollisionWorld::GetSweepAndPrunePairs() {
 
             std::vector<EndPoint> xPoints{};
             xPoints.reserve(m_objects.size() * 2);
             std::vector<EndPoint> yPoints{};
             yPoints.reserve(m_objects.size() * 2);
-
             for (CollisionObject* object : m_objects) {
                 if (!object->collider) {
                     continue;
@@ -142,32 +163,16 @@ namespace bruggles {
                 BinaryInsert(yPoints, minY);
                 BinaryInsert(yPoints, maxY);
             }
+            
 
             // go through both lists, and compute pairs
             // store map of id to list of ids
             // for id, if id is in both lists, we have a collision
-
+            
             std::unordered_map<Uint64, std::vector<EndPoint>> xPairs;
             std::unordered_map<Uint64, std::vector<EndPoint>> yPairs;
 
-            std::vector<Uint64> insideListX{};
-
-            for (int i = 0; i < xPoints.size(); i++) {
-                EndPoint& xPoint = xPoints[i];
-                if (xPoint.isMin) {
-                    for (Uint64 insideID : insideListX) {
-                        if (insideID != xPoint.id) {
-                            xPairs[insideID].push_back(xPoint);
-                        }
-                    }
-                    insideListX.push_back(xPoint.id);
-
-                }
-                else {
-                    auto itr = std::find(insideListX.begin(), insideListX.end(), xPoint.id);
-                    insideListX.erase(itr);
-                }
-            }
+            GetPairs(xPoints, xPairs);
 
             for (EndPoint& e : xPoints) {
                 auto& pairsWithE = xPairs[e.id];
@@ -176,24 +181,8 @@ namespace bruggles {
                 }
             }
 
-            std::vector<Uint64> insideListY{};
-
-            for (int i = 0; i < yPoints.size(); i++) {
-                EndPoint& yPoint = yPoints[i];
-                if (yPoint.isMin) {
-                    for (Uint64 insideID : insideListY) {
-                        if (insideID != yPoint.id) {
-                            yPairs[insideID].push_back(yPoint);
-                        }
-                    }
-                    insideListY.push_back(yPoint.id);
-                }
-                else {
-                    auto itr = std::find(insideListY.begin(), insideListY.end(), yPoint.id);
-                    insideListY.erase(itr);
-                }
-            }
-
+            GetPairs(yPoints, yPairs);
+            
             std::vector<std::pair<CollisionObject*, CollisionObject*>> result{};
             for (CollisionObject* object : m_objects) {
                 auto& xPointsPotential = xPairs[object->m_uniqueID];
@@ -215,6 +204,7 @@ namespace bruggles {
                     }
                 }
             }
+            
 
 
             return result;
@@ -223,12 +213,12 @@ namespace bruggles {
         void CollisionWorld::ResolveCollisions(float i_deltaTime) {
             // Get pairs
             // calculate collisions for pairs
-            //auto t1 = std::chrono::high_resolution_clock::now();
+            auto t1 = std::chrono::high_resolution_clock::now();
             std::vector<std::pair<CollisionObject*, CollisionObject*>> result = GetSweepAndPrunePairs();
-            //auto t2 = std::chrono::high_resolution_clock::now();
+            auto t2 = std::chrono::high_resolution_clock::now();
 
-            //std::chrono::duration<double, std::milli> ms_double = t2 - t1;
-            //std::cout << "sweep and prune: " << ms_double.count() << "ms\n";
+            std::chrono::duration<double, std::milli> ms_double = t2 - t1;
+            std::cout << "sweep and prune: " << ms_double.count() << "ms\n";
 
             int iterations = 2;
             for (int i = 0; i < iterations; i++) {
