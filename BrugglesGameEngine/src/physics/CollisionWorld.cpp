@@ -215,7 +215,8 @@ namespace bruggles {
                 auto& xPointsPotential = xPairs[object->m_uniqueID];
                 auto& yPointsPotential = yPairs[object->m_uniqueID];
                 std::vector<EndPoint> pairs{};
-                std::vector<Uint64> pairIDs{};
+                //std::vector<Uint64> pairIDs{};
+                std::unordered_set<Uint64> pairIDs{};
                 for (auto& xE : xPointsPotential) {
                     for (auto& yE : yPointsPotential) {
                         if (xE.id == yE.id) {
@@ -226,9 +227,9 @@ namespace bruggles {
                     //pairs.push_back(xE.object);
                 }
                 for (auto& pairObject : pairs) {
-                    if (std::find(pairIDs.begin(), pairIDs.end(), pairObject.id) == pairIDs.end()) {
+                    if (!pairIDs.contains(pairObject.id)) {
                         result.emplace_back(object, pairObject.object);
-                        pairIDs.push_back(pairObject.id);
+                        pairIDs.insert(pairObject.id);
                     }
                 }
             }
