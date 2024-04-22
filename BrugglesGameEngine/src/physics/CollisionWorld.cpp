@@ -235,10 +235,14 @@ namespace bruggles {
                 std::vector<Collision> collisions;
                 std::vector<Collision> triggers;
                 //t1 = std::chrono::high_resolution_clock::now();
+                std::unordered_map<Uint64, std::unordered_set<Uint64>> computedCollisions{};
                 for (std::pair<CollisionObject*, CollisionObject*>& pair : result) {
                     auto a = pair.first;
                     auto b = pair.second;
                     if (a == b) continue;
+                    if (computedCollisions[a->m_uniqueID].contains(b->m_uniqueID) || computedCollisions[b->m_uniqueID].contains(a->m_uniqueID)) continue;
+                    computedCollisions[a->m_uniqueID].insert(b->m_uniqueID);
+                    computedCollisions[b->m_uniqueID].insert(a->m_uniqueID);
                     if (a->m_gameObject && !a->m_gameObject->IsActive()) continue;
                     if (b->m_gameObject && !b->m_gameObject->IsActive()) continue;
 
