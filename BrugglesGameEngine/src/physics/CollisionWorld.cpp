@@ -224,39 +224,47 @@ namespace bruggles {
             std::vector<std::pair<CollisionObject*, CollisionObject*>>& pairs,
             float i_deltaTime
         ) {
-            std::vector<Collision> collisions;
-            std::vector<Collision> triggers;
-            for (std::pair<CollisionObject*, CollisionObject*>& pair : pairs) {
-                auto a = pair.first;
-                auto b = pair.second;
-                if (a == b) continue;
-                if (a->m_gameObject && !a->m_gameObject->IsActive()) continue;
-                if (b->m_gameObject && !b->m_gameObject->IsActive()) continue;
+            int iterations = 4;
+            for (int i = 0; i < iterations; i++) {
+                std::vector<Collision> collisions;
+                std::vector<Collision> triggers;
+                std::unordered_map<Uint64, std::unordered_set<Uint64>> computedCollisions{};
 
-                if (!a->collider || !b->collider) continue;
+                for (std::pair<CollisionObject*, CollisionObject*>& pair : pairs) {
+                    auto a = pair.first;
+                    auto b = pair.second;
+                    if (a == b) continue;
+                    if (computedCollisions[a->m_uniqueID].contains(b->m_uniqueID) || computedCollisions[b->m_uniqueID].contains(a->m_uniqueID)) continue;
+                    computedCollisions[a->m_uniqueID].insert(b->m_uniqueID);
+                    computedCollisions[b->m_uniqueID].insert(a->m_uniqueID);
+                    if (a->m_gameObject && !a->m_gameObject->IsActive()) continue;
+                    if (b->m_gameObject && !b->m_gameObject->IsActive()) continue;
 
-                CollisionPoints points = a->collider->CheckCollision(
-                    &a->GetTransform(),
-                    b->collider,
-                    &b->GetTransform()
-                );
+                    if (!a->collider || !b->collider) continue;
 
-                Collision collision = Collision(a, b, points);
+                    CollisionPoints points = a->collider->CheckCollision(
+                        &a->GetTransform(),
+                        b->collider,
+                        &b->GetTransform()
+                    );
 
-                if (points.HasCollision) {
-                    bool trigger = a->IsTrigger || b->IsTrigger;
+                    Collision collision = Collision(a, b, points);
 
-                    if (trigger) {
-                        triggers.emplace_back(a, b, points);
-                    }
-                    else {
-                        collisions.emplace_back(a, b, points);
+                    if (points.HasCollision) {
+                        bool trigger = a->IsTrigger || b->IsTrigger;
+
+                        if (trigger) {
+                            triggers.emplace_back(a, b, points);
+                        }
+                        else {
+                            collisions.emplace_back(a, b, points);
+                        }
                     }
                 }
+                SolveCollisions(collisions, i_deltaTime);
+                SendCollisionCallbacks(collisions, i_deltaTime);
+                SendCollisionCallbacks(triggers, i_deltaTime);
             }
-            SolveCollisions(collisions, i_deltaTime);
-            SendCollisionCallbacks(collisions, i_deltaTime);
-            SendCollisionCallbacks(triggers, i_deltaTime);
         }
 
         void ThreadSolvePairs(

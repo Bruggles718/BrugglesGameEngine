@@ -45,7 +45,7 @@ namespace bruggles {
             }
 
             ResolveCollisions(i_deltaTime);
-            ResolveCollisions(i_deltaTime);
+            //ResolveCollisions(i_deltaTime);
         }
 
         void DynamicsWorld::SetGravity(Vector2 i_gravity) {
