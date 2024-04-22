@@ -33,6 +33,11 @@ namespace bruggles {
                 float i_deltaTime
             );
 
+            void SolvePairs(
+                std::vector<std::pair<CollisionObject*, CollisionObject*>>& pairs,
+                float i_deltaTime
+            );
+
             void ResolveCollisions(float i_deltaTime);
 
             void RenderColliders(Camera* i_camera);

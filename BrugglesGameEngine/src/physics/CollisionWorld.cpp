@@ -3,6 +3,7 @@
 #include <unordered_set>
 #include <iostream>
 #include "GameObject.hpp"
+#include <thread>
 
 namespace bruggles {
     namespace physics {
@@ -219,15 +220,13 @@ namespace bruggles {
             return result;
         }
 
-        void CollisionWorld::ResolveCollisions(float i_deltaTime) {
+        void CollisionWorld::SolvePairs(
+            std::vector<std::pair<CollisionObject*, CollisionObject*>>& pairs,
+            float i_deltaTime
+        ) {
             std::vector<Collision> collisions;
             std::vector<Collision> triggers;
-
-            // Get pairs
-            // calculate collisions for pairs
-            std::vector<std::pair<CollisionObject*, CollisionObject*>> result = GetSweepAndPrunePairs();
-
-            for (std::pair<CollisionObject*, CollisionObject*>& pair : result) {
+            for (std::pair<CollisionObject*, CollisionObject*>& pair : pairs) {
                 auto a = pair.first;
                 auto b = pair.second;
                 if (a == b) continue;
@@ -255,10 +254,46 @@ namespace bruggles {
                     }
                 }
             }
-
             SolveCollisions(collisions, i_deltaTime);
             SendCollisionCallbacks(collisions, i_deltaTime);
             SendCollisionCallbacks(triggers, i_deltaTime);
+        }
+
+        void ThreadSolvePairs(
+            CollisionWorld* world,
+            std::vector<std::pair<CollisionObject*, CollisionObject*>>& pairs,
+            float i_deltaTime
+        ) {
+            world->SolvePairs(pairs, i_deltaTime);
+        }
+
+        void CollisionWorld::ResolveCollisions(float i_deltaTime) { 
+            // Get pairs
+            // calculate collisions for pairs
+            std::vector<std::pair<CollisionObject*, CollisionObject*>> result = GetSweepAndPrunePairs();
+            std::vector<std::vector<std::pair<CollisionObject*, CollisionObject*>>> sublists{};
+
+            int plannedThreadCount = 8;
+
+            sublists.reserve(plannedThreadCount);
+
+            for (int i = 0; i < result.size(); i++) {
+                if (i < plannedThreadCount) {
+                    sublists.emplace_back();
+                }
+                sublists[i % plannedThreadCount].push_back(result[i]);
+            }
+
+            std::vector<std::thread> threads;
+            threads.reserve(plannedThreadCount);
+
+            for (int i = 0; i < sublists.size(); i++) {
+                threads.emplace_back(ThreadSolvePairs, this, std::ref(sublists[i]), i_deltaTime);
+            }
+
+            for (auto& t : threads) {
+                t.join();
+            }
         }
 
         void CollisionWorld::RenderColliders(Camera* i_camera) {
