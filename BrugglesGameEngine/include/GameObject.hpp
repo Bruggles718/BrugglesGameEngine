@@ -1,8 +1,8 @@
 #pragma once
 
 #include <memory>
-#include "Transform.hpp"
-#include "Vector2.hpp"
+#include "Transform.cuh"
+#include "Vector2.cuh"
 #include "pybind11/pybind11.h"
 #include "physics/Collision.hpp"
 #include "physics/CollisionEvent.hpp"

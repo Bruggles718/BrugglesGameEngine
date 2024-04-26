@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "components/Component.hpp"
-#include "physics/Collider.hpp"
+#include "physics/Collider.cuh"
 
 namespace bruggles {
     namespace components {

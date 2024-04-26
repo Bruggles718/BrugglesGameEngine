@@ -8,6 +8,8 @@
 #include <SDL_image.h>
 #include "components/TransformComponent.hpp"
 #include <iostream>
+#include "TDynamicArray.cuh"
+#include "TArray.cuh"
 
 namespace py = pybind11;
 
@@ -295,7 +297,118 @@ namespace bruggles {
         this->m_gameObjectsAtIdxToDestroy.push_back(i_idx);
     }
 
+    TDynamicArray<int> CopyTDynamicArrayTest() {
+        TDynamicArray<int> arr;
+        arr.PushBack(0);
+        arr.PushBack(1);
+        arr.PushBack(2);
+        return arr;
+    }
+
     void Application::Loop() {
+        std::cout << "TDynamicArray Tests:\n";
+        // Test default constructor
+        TDynamicArray<int> vec_default;
+        assert(vec_default.Size() == 0);
+        std::cout << "Constructor passed\n";
+
+        // Test PushBack
+        vec_default.PushBack(1);
+        vec_default.PushBack(2);
+        assert(vec_default.Size() == 2);
+        assert(vec_default[0] == 1);
+        assert(vec_default[1] == 2);
+        std::cout << "PushBack passed\n";
+
+        // Test Copy
+        TDynamicArray<int> copied = CopyTDynamicArrayTest();
+        assert(copied[0] == 0);
+        assert(copied[1] == 1);
+        assert(copied[2] == 2);
+        std::cout << "Copy passed\n";
+
+        TDynamicArray<int> copied2 = TDynamicArray<int>(vec_default);
+        assert(vec_default.Size() == 2);
+        assert(vec_default[0] == 1);
+        assert(vec_default[1] == 2);
+        std::cout << "Copy constructor passed\n";
+
+        // Test PopBack
+        vec_default.PopBack();
+        assert(vec_default.Size() == 1);
+        assert(vec_default[0] == 1);
+        std::cout << "PopBack passed\n";
+
+        // Test insert
+        vec_default.Insert(0, 3);
+        assert(vec_default.Size() == 2);
+        assert(vec_default[0] == 3);
+        assert(vec_default[1] == 1);
+        std::cout << "Insert passed\n";
+
+        // Test resize
+        vec_default.Resize(3);
+        assert(vec_default.m_capacity == 3);
+        std::cout << "Resize passed\n";
+
+        // Test clear
+        vec_default.Clear();
+        assert(vec_default.Size() == 0);
+        std::cout << "Clear passed\n";
+
+        // Test access out of bounds
+        bool out_of_bounds = false;
+        try {
+            int val = vec_default[0];
+        }
+        catch (...) {
+            out_of_bounds = true;
+        }
+        assert(out_of_bounds);
+        std::cout << "Out of bounds passed\n";
+
+        std::cout << "All tests passed successfully!\n\n";
+
+        std::cout << "TArray tests:\n";
+        // Test constructor
+        TArray<int> arr(5);
+        assert(arr.Size() == 5);
+        std::cout << "Constructor passed\n";
+
+        // Test copy constructor
+        TArray<int> arr_copy(arr);
+        assert(arr_copy.Size() == 5);
+        std::cout << "Copy passed\n";
+
+        // Test destructor
+        {
+            TArray<int> arr_destruct(5);
+            // Ensure that destructor is called when leaving the scope
+        }
+        std::cout << "Destructor passed\n";
+
+        // Test array constructor
+        int data[] = { 1, 2, 3, 4, 5 };
+        TArray<int> arr_from_array(data, 5);
+        assert(arr_from_array.Size() == 5);
+        assert(arr_from_array[0] == 1);
+        assert(arr_from_array[4] == 5);
+        std::cout << "Constructor from array passed\n";
+
+        // Test assignment operator
+        TArray<int> arr_assigned = arr_from_array;
+        assert(arr_assigned.Size() == 5);
+        assert(arr_assigned[0] == 1);
+        assert(arr_assigned[4] == 5);
+        std::cout << "Copy assignment passed\n";
+
+        // Test element access
+        arr_assigned[0] = 10;
+        assert(arr_assigned[0] == 10);
+        std::cout << "Element access passed\n";
+
+        std::cout << "All tests passed successfully!\n";
+
         std::shared_ptr<physics::Solver> posSolver = std::make_shared<physics::PositionSolver>();
         std::shared_ptr<physics::Solver> impulseSolver = std::make_shared<bruggles::physics::ImpulseSolver>();
         m_physicsWorld.AddSolver(impulseSolver.get());

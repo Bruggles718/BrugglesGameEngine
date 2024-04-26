@@ -2,7 +2,7 @@
 
 #include <vector>
 #include "physics/Collision.hpp"
-#include "Transform.hpp"
+#include "Transform.cuh"
 
 namespace bruggles {
     namespace physics {

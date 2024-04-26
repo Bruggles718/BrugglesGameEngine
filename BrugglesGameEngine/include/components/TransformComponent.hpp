@@ -2,8 +2,8 @@
 
 #include <memory>
 
-#include "Transform.hpp"
-#include "Vector2.hpp"
+#include "Transform.cuh"
+#include "Vector2.cuh"
 #include "components/Component.hpp"
 #include "Serializable.hpp"
 #include <physics/Rigidbody.hpp>

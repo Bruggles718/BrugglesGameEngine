@@ -53,26 +53,46 @@
     <ClCompile Include="src\components\TransformComponent.cpp" />
     <ClCompile Include="src\Deserializer.cpp" />
     <ClCompile Include="src\GameObject.cpp" />
-    <ClCompile Include="src\MathHelpers.cpp" />
     <ClCompile Include="src\physics\BoxCollider.cpp" />
-    <ClCompile Include="src\physics\CircleCollider.cpp" />
+    <CudaCompile Include="src\MathHelpers.cu" />
+    <CudaCompile Include="src\physics\CircleCollider.cu">
+      <FileType>Document</FileType>
+    </CudaCompile>
     <ClCompile Include="src\physics\Collision.cpp" />
-    <ClCompile Include="src\physics\CollisionObject.cpp" />
-    <ClCompile Include="src\physics\CollisionPoints.cpp" />
+    <CudaCompile Include="src\physics\CollisionObject.cu">
+      <FileType>Document</FileType>
+    </CudaCompile>
+    <CudaCompile Include="src\physics\CollisionPoints.cu">
+      <FileType>Document</FileType>
+    </CudaCompile>
     <ClCompile Include="src\physics\CollisionWorld.cpp" />
     <ClCompile Include="src\physics\DynamicsWorld.cpp" />
-    <ClCompile Include="src\physics\HullCollider.cpp" />
+    <CudaCompile Include="src\physics\HullCollider.cu">
+      <FileType>Document</FileType>
+    </CudaCompile>
     <ClCompile Include="src\physics\ImpulseSolver.cpp" />
-    <ClCompile Include="src\physics\PhysicsHelpers.cpp" />
+    <CudaCompile Include="src\physics\PhysicsHelpers.cu">
+      <FileType>Document</FileType>
+    </CudaCompile>
     <ClCompile Include="src\physics\PositionSolver.cpp" />
-    <ClCompile Include="src\physics\Simplex.cpp" />
+    <CudaCompile Include="src\physics\Simplex.cu">
+      <FileType>Document</FileType>
+    </CudaCompile>
     <ClCompile Include="src\Serializable.cpp" />
     <ClCompile Include="src\TextureManager.cpp" />
-    <ClCompile Include="src\Transform.cpp" />
-    <ClCompile Include="src\Vector2.cpp" />
+    <CudaCompile Include="src\Transform.cu">
+      <FileType>Document</FileType>
+    </CudaCompile>
+    <CudaCompile Include="src\TArray.cu" />
+    <CudaCompile Include="src\TDynamicArray.cu" />
+    <CudaCompile Include="src\Vector2.cu">
+      <FileType>Document</FileType>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Application.hpp" />
+    <ClInclude Include="include\MathHelpers.cuh" />
+    <ClInclude Include="include\TArray.cuh" />
     <ClInclude Include="include\Bruggles.hpp" />
     <ClInclude Include="include\Camera.hpp" />
     <ClInclude Include="include\Components.hpp" />
@@ -91,32 +111,40 @@
     <ClInclude Include="include\components\TransformComponent.hpp" />
     <ClInclude Include="include\Deserializer.hpp" />
     <ClInclude Include="include\GameObject.hpp" />
-    <ClInclude Include="include\MathHelpers.hpp" />
+    <ClInclude Include="include\kernel.cuh" />
     <ClInclude Include="include\Physics.hpp" />
     <ClInclude Include="include\physics\BoxCollider.hpp" />
-    <ClInclude Include="include\physics\CircleCollider.hpp" />
-    <ClInclude Include="include\physics\Collider.hpp" />
+    <ClInclude Include="include\physics\CircleCollider.cuh" />
+    <ClInclude Include="include\physics\Collider.cuh" />
     <ClInclude Include="include\physics\Collision.hpp" />
     <ClInclude Include="include\physics\CollisionEvent.hpp" />
-    <ClInclude Include="include\physics\CollisionObject.hpp" />
-    <ClInclude Include="include\physics\CollisionPoints.hpp" />
+    <ClInclude Include="include\physics\CollisionHelpers.cuh" />
+    <ClInclude Include="include\physics\CollisionObject.cuh" />
+    <ClInclude Include="include\physics\CollisionPoints.cuh" />
     <ClInclude Include="include\physics\CollisionWorld.hpp" />
     <ClInclude Include="include\physics\DynamicsWorld.hpp" />
-    <ClInclude Include="include\physics\HullCollider.hpp" />
+    <ClInclude Include="include\physics\HullCollider.cuh" />
     <ClInclude Include="include\physics\ImpulseSolver.hpp" />
-    <ClInclude Include="include\physics\PhysicsHelpers.hpp" />
+    <ClInclude Include="include\physics\PhysicsHelpers.cuh" />
     <ClInclude Include="include\physics\PositionSolver.hpp" />
     <ClInclude Include="include\physics\Rigidbody.hpp" />
-    <ClInclude Include="include\physics\Simplex.hpp" />
+    <ClInclude Include="include\physics\Simplex.cuh" />
     <ClInclude Include="include\physics\Solver.hpp" />
     <ClInclude Include="include\Serializable.hpp" />
+    <ClInclude Include="include\TDynamicArray.cuh" />
     <ClInclude Include="include\TextureManager.hpp" />
-    <ClInclude Include="include\Transform.hpp" />
-    <ClInclude Include="include\Vector2.hpp" />
+    <ClInclude Include="include\Transform.cuh" />
+    <ClInclude Include="include\Vector2.cuh" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SDL2.dll" />
     <None Include="SDL2_image.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="src\physics\CollisionHelpers.cu">
+      <Emulation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</Emulation>
+    </CudaCompile>
+    <CudaCompile Include="src\kernel.cu" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -174,6 +202,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 12.4.props" />
   </ImportGroup>
   <ImportGroup Label="Shared">
   </ImportGroup>
@@ -277,6 +306,17 @@
       <AdditionalLibraryDirectories>C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.10_3.10.3056.0_x64__qbz5n2kfra8p0\libs;C:\SDL2_image\lib\x64;C:\SDL2\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL2.lib;SDL2_image.lib;python3.lib;python310.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <CudaCompile>
+      <CudaRuntime>Static</CudaRuntime>
+      <Emulation>false</Emulation>
+      <Defines>
+      </Defines>
+      <AdditionalCompilerOptions>
+      </AdditionalCompilerOptions>
+      <AdditionalOptions>--expt-relaxed-constexpr %(AdditionalOptions)</AdditionalOptions>
+      <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
+      <ExtensibleWholeProgramCompilation>false</ExtensibleWholeProgramCompilation>
+    </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MyRelease|x64'">
     <ClCompile>
@@ -321,5 +361,6 @@
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 12.4.targets" />
   </ImportGroup>
 </Project>

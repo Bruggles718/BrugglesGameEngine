@@ -1,12 +1,12 @@
-#include "physics/CollisionPoints.hpp"
+#include "physics/CollisionPoints.cuh"
 
 namespace bruggles {
     namespace physics {
-        CollisionPoints::CollisionPoints() {
+        __host__ __device__ CollisionPoints::CollisionPoints() {
             this->HasCollision = false;
         }
 
-        CollisionPoints::CollisionPoints(Vector2& i_A, Vector2& i_B) {
+        __host__ __device__ CollisionPoints::CollisionPoints(Vector2& i_A, Vector2& i_B) {
             this->HasCollision = true;
             this->A = i_A;
             this->B = i_B;
@@ -14,7 +14,7 @@ namespace bruggles {
             this->Depth = (this->A - this->B).Magnitude();
         }
 
-        CollisionPoints CollisionPoints::Flip() {
+        __host__ __device__ CollisionPoints CollisionPoints::Flip() {
             Vector2 temp = this->B;
             this->B = this->A;
             this->A = temp;

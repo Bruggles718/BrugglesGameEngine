@@ -1,9 +1,9 @@
 #pragma once
 
 #include <functional>
-#include "Vector2.hpp"
-#include "physics/Collider.hpp"
-#include "Transform.hpp"
+#include "Vector2.cuh"
+#include "physics/Collider.cuh"
+#include "Transform.cuh"
 #include "physics/Collision.hpp"
 #include <unordered_map>
 
@@ -14,6 +14,8 @@ namespace bruggles {
          * Represents a static object in a physics world.
         */
         struct CollisionObject {
+            __host__ __device__ CollisionObject();
+
             Uint64 m_uniqueID;
 
             Collider* collider;
@@ -25,7 +27,7 @@ namespace bruggles {
 
             GameObject* m_gameObject;
 
-            Transform& GetTransform();
+            __host__ __device__ Transform& GetTransform();
 
             Transform& GetLastTransform();
 

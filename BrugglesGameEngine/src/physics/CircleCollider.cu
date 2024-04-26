@@ -1,5 +1,6 @@
-#include "physics/CircleCollider.hpp"
-#include "physics/PhysicsHelpers.hpp"
+#include "physics/CircleCollider.cuh"
+#include "physics/PhysicsHelpers.cuh"
+#include "math.h"
 
 namespace bruggles {
     namespace physics {
@@ -39,6 +40,13 @@ namespace bruggles {
             );
         }
 
+        __host__ Collider* CircleCollider::GetDeviceCopy() {
+            CircleCollider* result = 0;
+            cudaMalloc(&result, sizeof(CircleCollider));
+            cudaMemcpy(result, this, sizeof(CircleCollider), cudaMemcpyHostToDevice);
+            return result;
+        }
+
         Vector2 CircleCollider::FindFurthestPoint(const Transform* i_tf, const Vector2& direction) const {
 
             Vector2 normalizedDirection = direction.Normalized();
@@ -58,21 +66,21 @@ namespace bruggles {
             float w = i_tf->Rotation * M_PI/180;
             float dx = adjustedDir.x;
             float dy = adjustedDir.y;
-            float drnx = dx*std::cos(-w) - dy*std::sin(-w);
-            float drny = dx*std::sin(-w) + dy*std::cos(-w);
+            float drnx = dx*cosf(-w) - dy*sinf(-w);
+            float drny = dx*sinf(-w) + dy*cosf(-w);
 
-            float ax = std::cos(std::atan2(drny/sy, drnx/sx));
-            float ay = std::sin(std::atan2(drny/sy, drnx/sx));
+            float ax = cosf(atan2f(drny/sy, drnx/sx));
+            float ay = sinf(atan2f(drny/sy, drnx/sx));
 
             float perpAngle = M_PI/2;
-            float aperpx = ax*std::cos(perpAngle) - ay*std::sin(perpAngle);
-            float aperpy = ax*std::sin(perpAngle) + ay*std::cos(perpAngle);
+            float aperpx = ax*cosf(perpAngle) - ay*sinf(perpAngle);
+            float aperpy = ax*sinf(perpAngle) + ay*cosf(perpAngle);
 
             float reTransformax = aperpx * sx;
             float reTransformay = aperpy * sy;
 
-            result.x = reTransformax*std::cos(w) - reTransformay*std::sin(w) + px;
-            result.y = reTransformax*std::sin(w) + reTransformay*std::cos(w) + py;
+            result.x = reTransformax*cosf(w) - reTransformay*sinf(w) + px;
+            result.y = reTransformax*sinf(w) + reTransformay*cosf(w) + py;
 
             return result;
         }
@@ -94,13 +102,13 @@ namespace bruggles {
                 float py = center.y;
                 float sx = i_tf->Scale.x * Radius;
                 float sy = i_tf->Scale.y * Radius;
-                float dx = std::cos(i * M_PI/180);
-                float dy = std::sin(i * M_PI/180);
-                float drnx = dx*std::cos(-w) - dy*std::sin(-w);
-                float drny = dx*std::sin(-w) + dy*std::cos(-w);
-                float nA2 = std::atan2(drny/sy, drnx/sx);
-                result.x = sx*std::cos(nA2)*std::cos(w) - sy*std::sin(nA2)*std::sin(w) + px;
-                result.y = sx*std::cos(nA2)*std::sin(w) + sy*std::sin(nA2)*std::cos(w) + py;
+                float dx = cosf(i * M_PI/180);
+                float dy = sinf(i * M_PI/180);
+                float drnx = dx*cosf(-w) - dy*sinf(-w);
+                float drny = dx*sinf(-w) + dy*cosf(-w);
+                float nA2 = atan2f(drny/sy, drnx/sx);
+                result.x = sx*cosf(nA2)*cosf(w) - sy*sinf(nA2)*sinf(w) + px;
+                result.y = sx*cosf(nA2)*sinf(w) + sy*sinf(nA2)*cosf(w) + py;
                 result.ApplyTransform(&invTf);
                 SDL_RenderDrawPoint(i_camera->m_renderer, (int)result.x, (int)result.y);
             }

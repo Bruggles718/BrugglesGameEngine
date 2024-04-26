@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "physics/CollisionObject.hpp"
+#include "physics/CollisionObject.cuh"
 #include "physics/Solver.hpp"
 #include "SDL.h"
 #include <unordered_set>
@@ -55,6 +55,8 @@ namespace bruggles {
             Uint64 id = 0;
             float value = 0.0f;
             bool isMin = false;
+
+            bool operator==(const EndPoint& other) const;
         };
     }
 }

@@ -1,7 +1,6 @@
 #pragma once
 
-#include <vector>
-#include "physics/HullCollider.hpp"
+#include "physics/HullCollider.cuh"
 
 namespace bruggles {
     namespace physics {

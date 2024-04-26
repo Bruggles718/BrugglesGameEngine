@@ -1,12 +1,13 @@
-#include "physics/HullCollider.hpp"
-#include "physics/PhysicsHelpers.hpp"
-#include <cfloat>
+#include "physics/HullCollider.cuh"
+#include "physics/PhysicsHelpers.cuh"
 
 namespace bruggles {
     namespace physics {
-        HullCollider::HullCollider() {}
+        HullCollider::HullCollider() {
+            this->Vertices = TDynamicArray<Vector2>();
+        }
 
-        HullCollider::HullCollider(std::vector<Vector2> i_vertices) {
+        HullCollider::HullCollider(TDynamicArray<Vector2>& i_vertices) {
             this->Vertices = i_vertices;
         }
 
@@ -40,11 +41,19 @@ namespace bruggles {
             );
         }
 
+        __host__ Collider* HullCollider::GetDeviceCopy() {
+            HullCollider* result = 0;
+            cudaMalloc(&result, sizeof(HullCollider));
+            cudaMemcpy(result, this, sizeof(HullCollider), cudaMemcpyHostToDevice);
+            return result;
+        }
+
         Vector2 HullCollider::FindFurthestPoint(const Transform* i_tf, const Vector2& direction) const {
             Vector2 maxPoint;
             float maxDistance = -FLT_MAX;
 
-            for (Vector2 vertex : this->Vertices) {
+            for (int i = 0; i < Vertices.Size(); i++) {
+                Vector2 vertex = Vertices[i];
                 Transform scaleRot{
                     Vector2(0, 0),
                     i_tf->Rotation,
@@ -62,9 +71,9 @@ namespace bruggles {
 
         void HullCollider::Render(const Transform* i_tf, const Camera* i_camera) {
             SDL_SetRenderDrawColor(i_camera->m_renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-            for (int i = 0; i < this->Vertices.size(); i++) {
+            for (int i = 0; i < this->Vertices.Size(); i++) {
                 Vector2 p1 = this->Vertices[i];
-                Vector2 p2 = this->Vertices[(i + 1) % this->Vertices.size()];
+                Vector2 p2 = this->Vertices[(i + 1) % this->Vertices.Size()];
                 p1.ApplyTransform(i_tf);
                 p2.ApplyTransform(i_tf);
                 Transform invTf = i_camera->GetInverseTransform();

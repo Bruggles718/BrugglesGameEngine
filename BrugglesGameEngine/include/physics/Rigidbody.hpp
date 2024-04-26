@@ -1,7 +1,7 @@
 #pragma once
 
-#include "physics/CollisionObject.hpp"
-#include "Vector2.hpp"
+#include "physics/CollisionObject.cuh"
+#include "Vector2.cuh"
 
 namespace bruggles {
     namespace physics {

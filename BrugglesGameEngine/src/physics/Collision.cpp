@@ -1,5 +1,5 @@
 #include "physics/Collision.hpp"
-#include "physics/CollisionObject.hpp"
+#include "physics/CollisionObject.cuh"
 
 namespace bruggles {
     namespace physics {

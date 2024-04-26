@@ -4,9 +4,23 @@
 #include <iostream>
 #include "GameObject.hpp"
 #include <chrono>
+#include "physics/CollisionHelpers.cuh"
+
+namespace std {
+    template <>
+    struct hash<bruggles::physics::EndPoint> {
+        std::size_t operator()(const bruggles::physics::EndPoint& k) const {
+            return k.id;
+        }
+    };
+}
 
 namespace bruggles {
     namespace physics {
+        bool EndPoint::operator==(const EndPoint& other) const {
+            return id == other.id;
+        }
+
         void CollisionWorld::AddCollisionObject(CollisionObject* i_object) {
             i_object->m_uniqueID = GenerateUniqueID();
             this->m_objects.push_back(i_object);
@@ -93,7 +107,7 @@ namespace bruggles {
             points.insert(points.begin() + low, pointToInsert);
         }
 
-        void GetPairs(std::vector<EndPoint>& points, std::unordered_map<Uint64, std::vector<EndPoint>>& result) {
+        void GetPairs(std::vector<EndPoint>& points, std::unordered_map<Uint64, std::unordered_set<EndPoint>>& result) {
 
             std::vector<Uint64> insideList{};
 
@@ -102,7 +116,7 @@ namespace bruggles {
                 if (point.isMin) {
                     for (Uint64 insideID : insideList) {
                         if (insideID != point.id) {
-                            result[insideID].push_back(point);
+                            result[insideID].insert(point);
                         }
                     }
                     insideList.push_back(point.id);
@@ -169,15 +183,15 @@ namespace bruggles {
             // store map of id to list of ids
             // for id, if id is in both lists, we have a collision
             
-            std::unordered_map<Uint64, std::vector<EndPoint>> xPairs;
-            std::unordered_map<Uint64, std::vector<EndPoint>> yPairs;
+            std::unordered_map<Uint64, std::unordered_set<EndPoint>> xPairs;
+            std::unordered_map<Uint64, std::unordered_set<EndPoint>> yPairs;
 
             GetPairs(xPoints, xPairs);
 
             for (EndPoint& e : xPoints) {
                 auto& pairsWithE = xPairs[e.id];
-                for (EndPoint& pairWithE : pairsWithE) {
-                    xPairs[pairWithE.id].push_back(e);
+                for (const EndPoint& pairWithE : pairsWithE) {
+                    xPairs[pairWithE.id].insert(e);
                 }
             }
 
@@ -190,11 +204,8 @@ namespace bruggles {
                 std::vector<EndPoint> pairs{};
                 std::unordered_set<Uint64> pairIDs{};
                 for (auto& xE : xPointsPotential) {
-                    for (auto& yE : yPointsPotential) {
-                        if (xE.id == yE.id) {
-                            pairs.push_back(xE);
-                            break;
-                        }
+                    if (yPointsPotential.contains(xE)) {
+                        pairs.push_back(xE);
                     }
                 }
                 for (auto& pairObject : pairs) {
@@ -220,13 +231,20 @@ namespace bruggles {
             //std::chrono::duration<double, std::milli> ms_double = t2 - t1;
             //std::cout << "sweep and prune: " << ms_double.count() << "ms\n";
 
-            int iterations = 2;
+            int iterations = 1;
             for (int i = 0; i < iterations; i++) {
                 std::vector<Collision> collisions;
                 std::vector<Collision> triggers;
                 //t1 = std::chrono::high_resolution_clock::now();
                 std::unordered_map<Uint64, std::unordered_set<Uint64>> computedCollisions{};
-                for (std::pair<CollisionObject*, CollisionObject*>& pair : result) {
+
+                std::vector<CollisionPoints> collisionPoints{};
+
+                GPUComputeCollisions(result, collisionPoints);
+
+                //for (std::pair<CollisionObject*, CollisionObject*>& pair : result) {
+                for (int j = 0; j < result.size(); j++) {
+                    std::pair<CollisionObject*, CollisionObject*> pair = result[j];
                     auto a = pair.first;
                     auto b = pair.second;
                     if (a == b) continue;
@@ -238,13 +256,15 @@ namespace bruggles {
 
                     if (!a->collider || !b->collider) continue;
 
-                    CollisionPoints points = a->collider->CheckCollision(
+                    /*CollisionPoints points = a->collider->CheckCollision(
                         &a->GetTransform(),
                         b->collider,
                         &b->GetTransform()
-                    );
+                    );*/
 
-                    Collision collision = Collision(a, b, points);
+                    CollisionPoints points = collisionPoints[j];
+
+                    //Collision collision = Collision(a, b, points);
 
                     if (points.HasCollision) {
                         bool trigger = a->IsTrigger || b->IsTrigger;

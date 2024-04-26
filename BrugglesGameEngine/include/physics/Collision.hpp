@@ -1,6 +1,6 @@
 #pragma once
 
-#include "physics/CollisionPoints.hpp"
+#include "physics/CollisionPoints.cuh"
 
 typedef uint64_t Uint64;
 

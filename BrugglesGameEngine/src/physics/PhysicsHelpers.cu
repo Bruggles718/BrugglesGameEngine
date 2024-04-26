@@ -1,7 +1,9 @@
-#include "physics/PhysicsHelpers.hpp"
+#include "physics/PhysicsHelpers.cuh"
 #include <cfloat>
 #include <math.h>
 #include <SDL.h>
+#include "TDynamicArray.cuh"
+#include <iostream>
 
 namespace bruggles {
     namespace physics {
@@ -14,9 +16,28 @@ namespace bruggles {
                 i_b, i_tb
             );
 
+            #ifdef  __CUDA_ARCH__
+            #else
+            std::cout << "has collision: " << simplexData.first << std::endl;
+            std::cout << "a radius: " << i_a->Radius << std::endl;
+            std::cout << "b radius: " << i_a->Radius << std::endl;
+            std::cout << "a tf pos: (" << i_ta->Position.x << ", " << i_ta->Position.y << ")" << std::endl;
+            std::cout << "b tf pos: (" << i_tb->Position.x << ", " << i_tb->Position.y << ")" << std::endl;
+            #endif
+            
+
             if (!simplexData.first) return CollisionPoints();
 
-            return EPA(simplexData.second, i_a, i_ta, i_b, i_tb);
+            CollisionPoints p = EPA(simplexData.second, i_a, i_ta, i_b, i_tb);
+
+            #ifdef  __CUDA_ARCH__
+            #else
+            std::cout << "has collision: " << p.HasCollision << std::endl;
+            std::cout << "normal: (" << p.Normal.x << ", " << p.Normal.x << ")" << std::endl;
+            std::cout << "depth: " << p.Depth << std::endl;
+            #endif
+
+            return p;
         }
         
         CollisionPoints CalcCircleHullCollisionPoints(
@@ -72,7 +93,7 @@ namespace bruggles {
         ) {
             Vector2 support = MinkowskiSupport(i_a, i_ta, i_b, i_tb, Vector2::UnitX());
             
-            Simplex vertices;
+            Simplex vertices{};
             vertices.Push_Front(support);
 
             Vector2 direction = -support;
@@ -88,11 +109,11 @@ namespace bruggles {
                 vertices.Push_Front(support);
 
                 if (NextSimplex(vertices, direction)) {
-                    return std::make_pair(true, vertices);
+                    return std::pair<bool, Simplex>(true, vertices);
                 }
             }
 
-            return std::make_pair(false, vertices);
+            return std::pair<bool, Simplex>(false, vertices);
         }
 
         bool NextSimplex(
@@ -144,11 +165,15 @@ namespace bruggles {
             Vector2 acf = TripleProduct(ab, ac, ac);
 
             if (SameDirection(abf, ao)) {
-                return Line(vertices = {a, b}, direction);
+                Vector2 arr[] = { a, b };
+                vertices = TArray<Vector2>(arr, 2);
+                return Line(vertices, direction);
             }
 
             if (SameDirection(acf, ao)) {
-                return Line(vertices = {a, c}, direction);
+                Vector2 arr[] = { a, c };
+                vertices = TArray<Vector2>(arr, 2);
+                return Line(vertices, direction);
             }
 
             return true;
@@ -169,24 +194,40 @@ namespace bruggles {
             return result;
         }
 
-        CollisionPoints EPA(
+        __host__ __device__ CollisionPoints EPA(
             const Simplex& i_simplex,
             const Collider* i_colliderA, const Transform* i_tfA,
             const Collider* i_colliderB, const Transform* i_tfB
         ) {
-            std::vector<Vector2> polytope;
-            for (Vector2 v : i_simplex.Vertices) {
-                polytope.push_back(v);
+            TDynamicArray<Vector2> polytope{};
+            for (int i = 0; i < i_simplex.Size(); i++) {
+                #ifdef  __CUDA_ARCH__
+                #else
+                std::cout << i_simplex[i].x << ", " << i_simplex[i].y << std::endl;
+                #endif
+                polytope.PushBack(i_simplex[i]);
+                #ifdef  __CUDA_ARCH__
+                #else
+                std::cout << polytope[i].x << ", " << polytope[i].y << std::endl;
+                #endif
             }
 
             int minIdx = 0;
             float minDistance = FLT_MAX;
             Vector2 minNormal;
 
+            #ifdef  __CUDA_ARCH__
+            #else
+            std::cout << polytope.Size() << std::endl;
+            for (int i = 0; i < polytope.Size(); i++) {
+                std::cout << polytope[i].x << ", " << polytope[i].y << std::endl;
+            }
+            #endif
+
             for (int i = 0; i < 32 && minDistance == FLT_MAX; i++) {
-                for (size_t i = 0; i < polytope.size(); i++) {
+                for (int i = 0; i < polytope.Size(); i++) {
                     Vector2 a = polytope[i];
-                    Vector2 b = polytope[(i + 1) % polytope.size()];
+                    Vector2 b = polytope[(i + 1) % polytope.Size()];
 
                     Vector2 ab = b - a;
 
@@ -215,7 +256,7 @@ namespace bruggles {
 
                 if (std::abs(sDistance - minDistance) > 0.001f) {
                     minDistance = FLT_MAX;
-                    polytope.insert(polytope.begin() + minIdx + 1, support);
+                    polytope.Insert(minIdx + 1, support);
                 }
             }
 

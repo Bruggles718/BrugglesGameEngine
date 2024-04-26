@@ -1,6 +1,6 @@
 #include <vector>
 #include "physics/PositionSolver.hpp"
-#include "physics/CollisionObject.hpp"
+#include "physics/CollisionObject.cuh"
 #include "physics/Rigidbody.hpp"
 #include "math.h"
 

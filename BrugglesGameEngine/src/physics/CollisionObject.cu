@@ -1,9 +1,11 @@
-#include "physics/CollisionObject.hpp"
+#include "physics/CollisionObject.cuh"
 #include <iostream>
 
 namespace bruggles {
     namespace physics {
-        Transform& CollisionObject::GetTransform() {
+        __host__ __device__ CollisionObject::CollisionObject() {};
+
+        __host__ __device__ Transform& CollisionObject::GetTransform() {
             return m_transform;
         }
 

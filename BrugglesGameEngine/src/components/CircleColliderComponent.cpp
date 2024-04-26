@@ -1,5 +1,5 @@
 #include "components/CircleColliderComponent.hpp"
-#include "physics/CircleCollider.hpp"
+#include "physics/CircleCollider.cuh"
 #include "components/RigidbodyComponent.hpp"
 #include "physics/Rigidbody.hpp"
 
