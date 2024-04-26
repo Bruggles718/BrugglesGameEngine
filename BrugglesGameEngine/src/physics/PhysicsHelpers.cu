@@ -15,27 +15,11 @@ namespace bruggles {
                 i_a, i_ta,
                 i_b, i_tb
             );
-
-            #ifdef  __CUDA_ARCH__
-            #else
-            std::cout << "has collision: " << simplexData.first << std::endl;
-            std::cout << "a radius: " << i_a->Radius << std::endl;
-            std::cout << "b radius: " << i_a->Radius << std::endl;
-            std::cout << "a tf pos: (" << i_ta->Position.x << ", " << i_ta->Position.y << ")" << std::endl;
-            std::cout << "b tf pos: (" << i_tb->Position.x << ", " << i_tb->Position.y << ")" << std::endl;
-            #endif
             
 
             if (!simplexData.first) return CollisionPoints();
 
             CollisionPoints p = EPA(simplexData.second, i_a, i_ta, i_b, i_tb);
-
-            #ifdef  __CUDA_ARCH__
-            #else
-            std::cout << "has collision: " << p.HasCollision << std::endl;
-            std::cout << "normal: (" << p.Normal.x << ", " << p.Normal.x << ")" << std::endl;
-            std::cout << "depth: " << p.Depth << std::endl;
-            #endif
 
             return p;
         }
@@ -201,28 +185,12 @@ namespace bruggles {
         ) {
             TDynamicArray<Vector2> polytope{};
             for (int i = 0; i < i_simplex.Size(); i++) {
-                #ifdef  __CUDA_ARCH__
-                #else
-                std::cout << i_simplex[i].x << ", " << i_simplex[i].y << std::endl;
-                #endif
                 polytope.PushBack(i_simplex[i]);
-                #ifdef  __CUDA_ARCH__
-                #else
-                std::cout << polytope[i].x << ", " << polytope[i].y << std::endl;
-                #endif
             }
 
             int minIdx = 0;
             float minDistance = FLT_MAX;
             Vector2 minNormal;
-
-            #ifdef  __CUDA_ARCH__
-            #else
-            std::cout << polytope.Size() << std::endl;
-            for (int i = 0; i < polytope.Size(); i++) {
-                std::cout << polytope[i].x << ", " << polytope[i].y << std::endl;
-            }
-            #endif
 
             for (int i = 0; i < 32 && minDistance == FLT_MAX; i++) {
                 for (int i = 0; i < polytope.Size(); i++) {

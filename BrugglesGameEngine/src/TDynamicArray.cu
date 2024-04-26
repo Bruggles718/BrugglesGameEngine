@@ -9,7 +9,7 @@ namespace bruggles {
 	template<typename T>
 	__host__ __device__ TDynamicArray<T>::TDynamicArray() {
 		int defaultCapacity = 2;
-		m_data = new T[2];
+		m_data = new T[defaultCapacity];
 		m_size = 0;
 		m_capacity = defaultCapacity;
 		memset(m_data, 0, sizeof(T) * m_capacity);
