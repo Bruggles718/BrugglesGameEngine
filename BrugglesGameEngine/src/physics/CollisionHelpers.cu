@@ -8,6 +8,7 @@
 #include "physics/Simplex.cuh"
 #include "physics/PhysicsHelpers.cuh"
 #include "math.h"
+#include <chrono>
 
 namespace bruggles {
 	namespace physics {
@@ -62,6 +63,7 @@ namespace bruggles {
             if (pairs.size() < 1) {
                 return;
             }
+            auto t1 = std::chrono::high_resolution_clock::now();
 
             // Extract pointers from the vector of pairs
             i_result.resize(pairs.size());
@@ -108,9 +110,18 @@ namespace bruggles {
             e = cudaMalloc((void**)&d_result, pairs.size() * sizeof(CollisionPoints));
             e = cudaMemcpy(d_firstList, firstList.data(), firstList.size() * sizeof(Transform), cudaMemcpyHostToDevice);
             e = cudaMemcpy(d_secondList, secondList.data(), secondList.size() * sizeof(Transform), cudaMemcpyHostToDevice);
+            auto t2 = std::chrono::high_resolution_clock::now();
+
+            std::chrono::duration<double, std::milli> ms_double = t2 - t1;
+            std::cout << "memory copy: " << ms_double.count() << "ms\n";
+
+            t1 = std::chrono::high_resolution_clock::now();
             // Launch kernel
             int numCollisions = pairs.size();
             ComputeCollision << <1, numCollisions >> > (d_firstList, d_secondList, d_firstColliderList, d_secondColliderList, d_result);
+            t2 = std::chrono::high_resolution_clock::now();
+            ms_double = t2 - t1;
+            std::cout << "compute collisions: " << ms_double.count() << "ms\n";
             cudaDeviceSynchronize();
             //std::cout << "got here1\n";
             e = cudaGetLastError();
