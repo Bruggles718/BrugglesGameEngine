@@ -83,30 +83,12 @@ namespace bruggles {
             Collider** d_firstColliderList = 0;
             Collider** d_secondColliderList = 0;
 
-            float* d_radii = 0;
-
             cudaError_t e;
 
             e = cudaMalloc(&d_firstList, pairs.size() * sizeof(Transform));
-            if (e != cudaSuccess) {
-                std::cout << "first list: " << cudaGetErrorString(e) << std::endl;
-                return;
-            }
             e = cudaMalloc(&d_secondList, pairs.size() * sizeof(Transform));
-            if (e != cudaSuccess) {
-                std::cout << cudaGetErrorString(e) << std::endl;
-                return;
-            }
             e = cudaMalloc(&d_firstColliderList, pairs.size() * sizeof(Collider*));
-            if (e != cudaSuccess) {
-                std::cout << cudaGetErrorString(e) << std::endl;
-                return;
-            }
             e = cudaMalloc(&d_secondColliderList, pairs.size() * sizeof(Collider*));
-            if (e != cudaSuccess) {
-                std::cout << cudaGetErrorString(e) << std::endl;
-                return;
-            }
 
             std::vector<Collider*> firstColliderList;
             std::vector<Collider*> secondColliderList;
@@ -119,54 +101,16 @@ namespace bruggles {
                 firstColliderList.push_back(a);
                 secondColliderList.push_back(b);
             }
-            e = cudaGetLastError();
-            if (e != cudaSuccess) {
-                std::cout << cudaGetErrorString(e) << std::endl;
-                return;
-            }
 
             e = cudaMemcpy(d_firstColliderList, firstColliderList.data(), firstColliderList.size() * sizeof(Collider*), cudaMemcpyHostToDevice);
-            if (e != cudaSuccess) {
-                std::cout << cudaGetErrorString(e) << std::endl;
-                return;
-            }
             e = cudaMemcpy(d_secondColliderList, secondColliderList.data(), secondColliderList.size() * sizeof(Collider*), cudaMemcpyHostToDevice);
-            if (e != cudaSuccess) {
-                std::cout << cudaGetErrorString(e) << std::endl;
-                return;
-            }
 
             e = cudaMalloc((void**)&d_result, pairs.size() * sizeof(CollisionPoints));
-            if (e != cudaSuccess) {
-                std::cout << cudaGetErrorString(e) << std::endl;
-                return;
-            }
-            e = cudaMalloc((void**)&d_radii, pairs.size() * sizeof(float));
-            if (e != cudaSuccess) {
-                std::cout << cudaGetErrorString(e) << std::endl;
-                return;
-            }
             e = cudaMemcpy(d_firstList, firstList.data(), firstList.size() * sizeof(Transform), cudaMemcpyHostToDevice);
-            if (e != cudaSuccess) {
-                std::cout << cudaGetErrorString(e) << std::endl;
-                return;
-            }
             e = cudaMemcpy(d_secondList, secondList.data(), secondList.size() * sizeof(Transform), cudaMemcpyHostToDevice);
-            if (e != cudaSuccess) {
-                std::cout << cudaGetErrorString(e) << std::endl;
-                return;
-            }
-
-            CollisionPoints* d_collisionPoints = 0;
-            e = cudaMalloc(&d_collisionPoints, pairs.size() * sizeof(CollisionPoints));
-            if (e != cudaSuccess) {
-                std::cout << cudaGetErrorString(e) << std::endl;
-                return;
-            }
-
             // Launch kernel
             int numCollisions = pairs.size();
-            ComputeCollision << <1, numCollisions >> > (d_firstList, d_secondList, d_firstColliderList, d_secondColliderList, d_collisionPoints);
+            ComputeCollision << <1, numCollisions >> > (d_firstList, d_secondList, d_firstColliderList, d_secondColliderList, d_result);
             cudaDeviceSynchronize();
             //std::cout << "got here1\n";
             e = cudaGetLastError();
@@ -175,7 +119,7 @@ namespace bruggles {
                 return;
             }
             // Copy result back to host
-            cudaMemcpy(i_result.data(), d_collisionPoints, pairs.size() * sizeof(CollisionPoints), cudaMemcpyDeviceToHost);
+            cudaMemcpy(i_result.data(), d_result, pairs.size() * sizeof(CollisionPoints), cudaMemcpyDeviceToHost);
 
             // Free device memory
             for (int i = 0; i < firstColliderList.size(); i++) {
@@ -187,7 +131,6 @@ namespace bruggles {
             cudaFree(d_result);
             cudaFree(d_firstColliderList);
             cudaFree(d_secondColliderList);
-            cudaFree(d_collisionPoints);
 		}
 	}
 }
