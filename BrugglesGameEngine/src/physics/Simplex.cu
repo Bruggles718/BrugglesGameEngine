@@ -4,7 +4,7 @@
 
 namespace bruggles {
     namespace physics {
-        void Simplex::Push_Front(Vector2& vertex) {
+        void Simplex::Push_Front(Vector2 vertex) {
             Vector2 arr[] = { vertex, Vertices[0], Vertices[1] };
             Vertices = TArray<Vector2>(arr, 3);
             m_size = math::Min((int)(m_size + 1), 3);

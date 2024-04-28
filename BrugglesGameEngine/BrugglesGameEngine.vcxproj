@@ -133,6 +133,8 @@
     <ClInclude Include="include\Serializable.hpp" />
     <ClInclude Include="include\TDynamicArray.cuh" />
     <ClInclude Include="include\TextureManager.hpp" />
+    <ClInclude Include="include\TPair.cuh" />
+    <ClInclude Include="include\TPair_impl.cuh" />
     <ClInclude Include="include\Transform.cuh" />
     <ClInclude Include="include\Vector2.cuh" />
   </ItemGroup>
@@ -316,6 +318,7 @@
       <AdditionalOptions>--expt-relaxed-constexpr %(AdditionalOptions)</AdditionalOptions>
       <GenerateRelocatableDeviceCode>true</GenerateRelocatableDeviceCode>
       <ExtensibleWholeProgramCompilation>false</ExtensibleWholeProgramCompilation>
+      <Optimization>Od</Optimization>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MyRelease|x64'">

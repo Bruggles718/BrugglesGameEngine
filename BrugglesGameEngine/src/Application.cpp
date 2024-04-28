@@ -10,6 +10,7 @@
 #include <iostream>
 #include "TDynamicArray.cuh"
 #include "TArray.cuh"
+#include "physics/Simplex.cuh"
 
 namespace py = pybind11;
 
@@ -407,7 +408,47 @@ namespace bruggles {
         assert(arr_assigned[0] == 10);
         std::cout << "Element access passed\n";
 
-        std::cout << "All tests passed successfully!\n";
+        std::cout << "All tests passed successfully!\n\n";
+
+        std::cout << "Simplex tests:\n";
+        // Create a Simplex object
+        physics::Simplex simplex;
+
+        // Test the Push_Front function
+        simplex.Push_Front({ 0.0f, 0.0f });
+        simplex.Push_Front({ 1.0f, 0.0f });
+        simplex.Push_Front({ 0.0f, 1.0f });
+
+        // Assert that size is correct after pushing vertices
+        assert(simplex.Size() == 3);
+        std::cout << "Size after pushing passed\n";
+
+        // Test the operator[] function
+        assert(simplex[0].x == 0.0f);
+        assert(simplex[0].y == 1.0f);
+        std::cout << "operator[] passed\n";
+
+        // Test the Size function
+        assert(simplex.Size() == 3);
+        std::cout << "Size passed\n";
+
+        // Test the assignment operator
+        TArray<Vector2> newVertices(2);
+        newVertices[0] = { 2.0f, 2.0f };
+        newVertices[1] = { 3.0f, 3.0f };
+
+        simplex = newVertices;
+
+        // Assert that size and vertices are correctly updated
+        assert(simplex.Size() == 2);
+        assert(simplex[0].x == 2.0f);
+        assert(simplex[0].y == 2.0f);
+        assert(simplex[1].x == 3.0f);
+        assert(simplex[1].y == 3.0f);
+        std::cout << "Assignment passed\n";
+
+        // If all assertions pass, print success message
+        std::cout << "All tests passed successfully!" << std::endl;
 
         std::shared_ptr<physics::Solver> posSolver = std::make_shared<physics::PositionSolver>();
         std::shared_ptr<physics::Solver> impulseSolver = std::make_shared<bruggles::physics::ImpulseSolver>();

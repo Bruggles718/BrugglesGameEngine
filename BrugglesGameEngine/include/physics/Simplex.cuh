@@ -13,7 +13,7 @@ namespace bruggles {
         struct Simplex {
             TArray<Vector2> Vertices = TArray<Vector2>(3);
 
-            __host__ __device__ void Push_Front(Vector2& vertex);
+            __host__ __device__ void Push_Front(Vector2 vertex);
 
             __host__ __device__ Vector2& operator[](int i) const;
 

@@ -40,10 +40,17 @@ namespace bruggles {
             );
         }
 
+        __global__ void MakeGPUCircleCollider(CircleCollider* i_result, float center_x, float center_y, float i_radius) {
+            new (i_result) CircleCollider(Vector2(center_x, center_y), i_radius);
+        }
+
         __host__ Collider* CircleCollider::GetDeviceCopy() {
             CircleCollider* result = 0;
             cudaMalloc(&result, sizeof(CircleCollider));
-            cudaMemcpy(result, this, sizeof(CircleCollider), cudaMemcpyHostToDevice);
+            //cudaMemcpy(result, this, sizeof(CircleCollider), cudaMemcpyHostToDevice);
+
+            MakeGPUCircleCollider << <1, 1 >> > (result, Center.x, Center.y, Radius);
+            cudaDeviceSynchronize();
             return result;
         }
 

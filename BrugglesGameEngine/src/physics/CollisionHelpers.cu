@@ -7,24 +7,61 @@
 #include "physics/CircleCollider.cuh"
 #include "physics/Simplex.cuh"
 #include "physics/PhysicsHelpers.cuh"
+#include "math.h"
 
 namespace bruggles {
 	namespace physics {
-		__global__ void ComputeCollision(Transform* i_at, Transform* i_bt, Collider** i_ac, Collider** i_bc, bool* i_hasCollision, Simplex* i_simplexes) {
+		__global__ void ComputeCollision(Transform* i_at, Transform* i_bt, Collider** i_ac, Collider** i_bc, CollisionPoints* i_points) {
 			int i = threadIdx.x;
 
-            auto result = GJK(i_bc[i], &i_bt[i], i_ac[i], &i_at[i]);
+            Transform at = i_at[i];
+            Transform bt = i_bt[i];
 
-            i_hasCollision[i] = result.first;
-            i_simplexes[i] = result.second;
+            /*CircleCollider* cc1 = new CircleCollider(((CircleCollider*)i_ac[i])->Center, ((CircleCollider*)i_ac[i])->Radius );
+            CircleCollider* cc2 = new CircleCollider(((CircleCollider*)i_bc[i])->Center, ((CircleCollider*)i_bc[i])->Radius);*/
+
+            /*printf("a tf pos: (%f, %f)\n", at.Position.x, at.Position.y);
+            printf("b tf pos: (%f, %f)\n", bt.Position.x, bt.Position.y);
+            printf("a radius: %f\n", ((CircleCollider*)i_ac[i])->Radius);
+            printf("b radius: %f\n", ((CircleCollider*)i_bc[i])->Radius);*/
+
+            auto result = GJK(i_bc[i], &bt, i_ac[i], &at);
+
+            //printf("%s\n", result.first ? "true" : "false");
+
+            if (!result.first) {
+                CollisionPoints* c = new CollisionPoints();
+                i_points[i] = *c;
+                return;
+            }
+
+            i_points[i] = EPA(result.second, i_bc[i], &bt, i_ac[i], &at);
+
+            //i_points[i] = cc2->CheckCollisionWithCircleCollider(&bt, cc1, &at);
+
+            //i_points[i] = i_ac[i]->CheckCollision(&at, i_bc[i], &bt);
+
+            //i_hasCollision[i] = result.first;
+            //i_simplexes[i] = result.second;
+            //i_hasCollision[i] = false;
+            /*Simplex s{};
+            Vector2 vec{ 1, 1 };
+            s.Push_Front(vec);
+            s.Push_Front(vec);
+            s.Push_Front(vec);*/
+
+            //i_vertices = s.Vertices.m_data;
+            //i_vertices = result.second.Vertices.m_data;
+
+            /*for (int i = 0; i < s.Size(); i++) {
+                printf("(%f, %f)\n", s[i].x, s[i].y);
+            }*/
 		}
 
 		void GPUComputeCollisions(std::vector<std::pair<CollisionObject*, CollisionObject*>>& pairs, std::vector<CollisionPoints>& i_result) {
             if (pairs.size() < 1) {
                 return;
             }
-
-            cudaDeviceSetLimit(cudaLimitMallocHeapSize, 100000);
 
             // Extract pointers from the vector of pairs
             i_result.resize(pairs.size());
@@ -52,19 +89,23 @@ namespace bruggles {
 
             e = cudaMalloc(&d_firstList, pairs.size() * sizeof(Transform));
             if (e != cudaSuccess) {
-                std::cout << cudaGetErrorString(e) << std::endl;
+                std::cout << "first list: " << cudaGetErrorString(e) << std::endl;
+                return;
             }
             e = cudaMalloc(&d_secondList, pairs.size() * sizeof(Transform));
             if (e != cudaSuccess) {
                 std::cout << cudaGetErrorString(e) << std::endl;
+                return;
             }
             e = cudaMalloc(&d_firstColliderList, pairs.size() * sizeof(Collider*));
             if (e != cudaSuccess) {
                 std::cout << cudaGetErrorString(e) << std::endl;
+                return;
             }
             e = cudaMalloc(&d_secondColliderList, pairs.size() * sizeof(Collider*));
             if (e != cudaSuccess) {
                 std::cout << cudaGetErrorString(e) << std::endl;
+                return;
             }
 
             std::vector<Collider*> firstColliderList;
@@ -81,84 +122,72 @@ namespace bruggles {
             e = cudaGetLastError();
             if (e != cudaSuccess) {
                 std::cout << cudaGetErrorString(e) << std::endl;
+                return;
             }
 
             e = cudaMemcpy(d_firstColliderList, firstColliderList.data(), firstColliderList.size() * sizeof(Collider*), cudaMemcpyHostToDevice);
             if (e != cudaSuccess) {
                 std::cout << cudaGetErrorString(e) << std::endl;
+                return;
             }
             e = cudaMemcpy(d_secondColliderList, secondColliderList.data(), secondColliderList.size() * sizeof(Collider*), cudaMemcpyHostToDevice);
             if (e != cudaSuccess) {
                 std::cout << cudaGetErrorString(e) << std::endl;
+                return;
             }
 
             e = cudaMalloc((void**)&d_result, pairs.size() * sizeof(CollisionPoints));
             if (e != cudaSuccess) {
                 std::cout << cudaGetErrorString(e) << std::endl;
+                return;
             }
             e = cudaMalloc((void**)&d_radii, pairs.size() * sizeof(float));
             if (e != cudaSuccess) {
                 std::cout << cudaGetErrorString(e) << std::endl;
+                return;
             }
             e = cudaMemcpy(d_firstList, firstList.data(), firstList.size() * sizeof(Transform), cudaMemcpyHostToDevice);
             if (e != cudaSuccess) {
                 std::cout << cudaGetErrorString(e) << std::endl;
+                return;
             }
             e = cudaMemcpy(d_secondList, secondList.data(), secondList.size() * sizeof(Transform), cudaMemcpyHostToDevice);
             if (e != cudaSuccess) {
                 std::cout << cudaGetErrorString(e) << std::endl;
+                return;
             }
 
-            bool* d_hasCollision = 0;
-            e = cudaMalloc(&d_hasCollision, pairs.size() * sizeof(bool));
+            CollisionPoints* d_collisionPoints = 0;
+            e = cudaMalloc(&d_collisionPoints, pairs.size() * sizeof(CollisionPoints));
             if (e != cudaSuccess) {
                 std::cout << cudaGetErrorString(e) << std::endl;
-            }
-
-            Simplex* d_simplexes = 0;
-            e = cudaMalloc(&d_simplexes, pairs.size() * sizeof(Simplex));
-            if (e != cudaSuccess) {
-                std::cout << cudaGetErrorString(e) << std::endl;
+                return;
             }
 
             // Launch kernel
             int numCollisions = pairs.size();
-            ComputeCollision << <1, numCollisions >> > (d_firstList, d_secondList, d_firstColliderList, d_secondColliderList, d_hasCollision, d_simplexes);
+            ComputeCollision << <1, numCollisions >> > (d_firstList, d_secondList, d_firstColliderList, d_secondColliderList, d_collisionPoints);
             cudaDeviceSynchronize();
-            /*e = cudaGetLastError();
+            //std::cout << "got here1\n";
+            e = cudaGetLastError();
             if (e != cudaSuccess) {
-                std::cout << cudaGetErrorString(e) << std::endl;
-            }*/
-            // Copy result back to host
-            /*std::vector<float> i_radii{};
-            i_radii.resize(pairs.size());*/
-            bool* i_hasCollision = new bool[pairs.size()];
-            //cudaMemcpy(i_result.data(), d_result, i_result.size() * sizeof(CollisionPoints), cudaMemcpyDeviceToHost);
-            Vector2* simplex = new Vector2[3];
-            cudaMemcpy(i_hasCollision, d_hasCollision, pairs.size() * sizeof(bool), cudaMemcpyDeviceToHost);
-            cudaMemcpy(simplex, &d_simplexes[0].Vertices, sizeof(Vector2) * 3, cudaMemcpyDeviceToHost);
-
-            //std::cout << std::boolalpha;
-
-            for (int i = 0; i < i_result.size(); i++) {
-                std::cout << i << " result: \nHasCollision: " << i_hasCollision[i] << std::endl;
-                if (i_hasCollision) {
-                    for (int i = 0; i < 3; i++) {
-                        std::cout << simplex[i].x << ", " << simplex[i].y << std::endl;
-                    }
-                }
+                std::cout << "compute collision: " << cudaGetErrorString(e) << std::endl;
+                return;
             }
+            // Copy result back to host
+            cudaMemcpy(i_result.data(), d_collisionPoints, pairs.size() * sizeof(CollisionPoints), cudaMemcpyDeviceToHost);
 
             // Free device memory
+            for (int i = 0; i < firstColliderList.size(); i++) {
+                cudaFree(firstColliderList[i]);
+                cudaFree(secondColliderList[i]);
+            }
             cudaFree(d_firstList);
             cudaFree(d_secondList);
             cudaFree(d_result);
             cudaFree(d_firstColliderList);
             cudaFree(d_secondColliderList);
-            cudaFree(d_hasCollision);
-            cudaFree(d_simplexes);
-            delete[] i_hasCollision;
-            delete[] simplex;
+            cudaFree(d_collisionPoints);
 		}
 	}
 }

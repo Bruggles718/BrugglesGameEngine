@@ -41,10 +41,23 @@ namespace bruggles {
             );
         }
 
+        __global__ void MakeGPUHullCollider(HullCollider* i_result, Vector2* i_verts, int i_vertCount) {
+            TDynamicArray<Vector2> verts{};
+            for (int i = 0; i < i_vertCount; i++) {
+                verts.PushBack(i_verts[i]);
+            }
+            new (i_result) HullCollider(verts);
+        }
+
         __host__ Collider* HullCollider::GetDeviceCopy() {
             HullCollider* result = 0;
             cudaMalloc(&result, sizeof(HullCollider));
-            cudaMemcpy(result, this, sizeof(HullCollider), cudaMemcpyHostToDevice);
+            //cudaMemcpy(result, this, sizeof(CircleCollider), cudaMemcpyHostToDevice);
+            Vector2* verts = 0;
+            cudaMalloc(&verts, sizeof(Vector2) * Vertices.Size());
+            cudaMemcpy(verts, Vertices.m_data, sizeof(Vector2) * Vertices.Size(), cudaMemcpyHostToDevice);
+            MakeGPUHullCollider << <1, 1 >> > (result, verts, Vertices.Size());
+            cudaDeviceSynchronize();
             return result;
         }
 

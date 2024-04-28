@@ -4,6 +4,7 @@
 #include <SDL.h>
 #include "TDynamicArray.cuh"
 #include <iostream>
+#include "TPair.cuh"
 
 namespace bruggles {
     namespace physics {
@@ -11,11 +12,10 @@ namespace bruggles {
             const CircleCollider* i_a, const Transform* i_ta,
             const CircleCollider* i_b, const Transform* i_tb
         ) {
-            std::pair<bool, Simplex> simplexData = GJK(
+            TPair<bool, Simplex> simplexData = GJK(
                 i_a, i_ta,
                 i_b, i_tb
             );
-            
 
             if (!simplexData.first) return CollisionPoints();
 
@@ -28,7 +28,7 @@ namespace bruggles {
             const CircleCollider* i_circleCollider, const Transform* i_tCircleCollider,
             const HullCollider* i_hullCollider, const Transform* i_tHullCollider
         ) {
-            std::pair<bool, Simplex> simplexData = GJK(
+            TPair<bool, Simplex> simplexData = GJK(
                 i_circleCollider, i_tCircleCollider,
                 i_hullCollider, i_tHullCollider
             );
@@ -53,7 +53,7 @@ namespace bruggles {
             const HullCollider* i_a, const Transform* i_ta,
             const HullCollider* i_b, const Transform* i_tb
         ) {
-            std::pair<bool, Simplex> simplexData = GJK(
+            TPair<bool, Simplex> simplexData = GJK(
                 i_a, i_ta,
                 i_b, i_tb
             );
@@ -71,12 +71,17 @@ namespace bruggles {
             return i_a->FindFurthestPoint(i_ta, direction) - i_b->FindFurthestPoint(i_tb, -direction);
         }
 
-        std::pair<bool, Simplex> GJK(
+        TPair<bool, Simplex> GJK(
             const Collider* i_a, const Transform* i_ta,
             const Collider* i_b, const Transform* i_tb
         ) {
-            Vector2 support = MinkowskiSupport(i_a, i_ta, i_b, i_tb, Vector2::UnitX());
-            
+            /*printf("a tf pos: (%f, %f)\n", i_ta->Position.x, i_ta->Position.y);
+            printf("b tf pos: (%f, %f)\n", i_ta->Position.x, i_ta->Position.y);
+            printf("a furthest point unit x: %f\n", ((CircleCollider*)i_a)->FindFurthestPoint(i_ta, Vector2(1, 0)).x);
+            printf("b radius: %f\n", ((CircleCollider*)i_b)->Radius);
+            return TPair<bool, Simplex>();*/
+            Vector2 support = MinkowskiSupport(i_a, i_ta, i_b, i_tb, Vector2(1, 0));
+            /*return TPair<bool, Simplex>();*/
             Simplex vertices{};
             vertices.Push_Front(support);
 
@@ -93,11 +98,14 @@ namespace bruggles {
                 vertices.Push_Front(support);
 
                 if (NextSimplex(vertices, direction)) {
-                    return std::pair<bool, Simplex>(true, vertices);
+                    //for (int i = 0; i < vertices.Size(); i++) {
+                    //    //printf("(%f, %f)\n", vertices[i].x, vertices[i].y);
+                    //}
+                    return TPair<bool, Simplex>(true, vertices);
                 }
             }
 
-            return std::pair<bool, Simplex>(false, vertices);
+            return TPair<bool, Simplex>(false, vertices);
         }
 
         bool NextSimplex(
@@ -222,7 +230,7 @@ namespace bruggles {
 
                 float sDistance = Vector2::Dot(minNormal, support);
 
-                if (std::abs(sDistance - minDistance) > 0.001f) {
+                if (abs(sDistance - minDistance) > 0.001f) {
                     minDistance = FLT_MAX;
                     polytope.Insert(minIdx + 1, support);
                 }
@@ -232,11 +240,11 @@ namespace bruggles {
                 return CollisionPoints();
             }
 
-            CollisionPoints result;
-            result.Normal = minNormal;
-            result.Depth = minDistance;
-            result.HasCollision = true;
-            return result;
+            CollisionPoints* result = new CollisionPoints();
+            result->Normal = minNormal;
+            result->Depth = minDistance;
+            result->HasCollision = true;
+            return *result;
         }
     }
 }

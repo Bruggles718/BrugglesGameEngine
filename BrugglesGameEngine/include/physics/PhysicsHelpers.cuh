@@ -4,6 +4,7 @@
 #include "physics/CircleCollider.cuh"
 #include "physics/HullCollider.cuh"
 #include "physics/Simplex.cuh"
+#include "TPair.cuh"
 
 namespace bruggles {
     namespace physics {
@@ -81,7 +82,7 @@ namespace bruggles {
          * Computes the Simplex needed to determine whether or not there is a collision between the two given colliders.
          * @return a pair whose first is a boolean of whether or not there is a collision, and whose second is the computed Simplex
         */
-        __host__ __device__ std::pair<bool, Simplex> GJK(
+        __host__ __device__ TPair<bool, Simplex> GJK(
             const Collider* i_a, const Transform* i_ta,
             const Collider* i_b, const Transform* i_tb
         );

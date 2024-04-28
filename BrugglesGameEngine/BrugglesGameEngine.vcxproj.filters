@@ -230,6 +230,8 @@
     <ClInclude Include="include\MathHelpers.cuh">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\TPair.cuh" />
+    <ClInclude Include="include\TPair_impl.cuh" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SDL2_image.dll" />
