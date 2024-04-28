@@ -58,6 +58,7 @@ namespace bruggles {
             cudaMemcpy(verts, Vertices.m_data, sizeof(Vector2) * Vertices.Size(), cudaMemcpyHostToDevice);
             MakeGPUHullCollider << <1, 1 >> > (result, verts, Vertices.Size());
             cudaDeviceSynchronize();
+            cudaFree(verts);
             return result;
         }
 
