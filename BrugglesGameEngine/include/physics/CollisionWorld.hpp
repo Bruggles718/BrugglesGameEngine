@@ -41,7 +41,7 @@ namespace bruggles {
 
             Uint64 GenerateUniqueID();
 
-            std::vector<std::pair<CollisionObject*, CollisionObject*>> GetSweepAndPrunePairs();
+            std::unordered_map<Uint64, std::vector<CollisionObject*>> GetSweepAndPrunePairs();
 
         protected:
             std::vector<CollisionObject*> m_objects;

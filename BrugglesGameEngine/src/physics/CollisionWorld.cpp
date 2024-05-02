@@ -115,7 +115,7 @@ namespace bruggles {
             }
         }
 
-        std::vector<std::pair<CollisionObject*, CollisionObject*>> CollisionWorld::GetSweepAndPrunePairs() {
+        std::unordered_map<Uint64, std::vector<CollisionObject*>> CollisionWorld::GetSweepAndPrunePairs() {
 
             std::vector<EndPoint> xPoints{};
             xPoints.reserve(m_objects.size() * 2);
@@ -183,7 +183,7 @@ namespace bruggles {
 
             GetPairs(yPoints, yPairs);
             
-            std::vector<std::pair<CollisionObject*, CollisionObject*>> result{};
+            std::unordered_map<Uint64, std::vector<CollisionObject*>> result{};
             for (CollisionObject* object : m_objects) {
                 auto& xPointsPotential = xPairs[object->m_uniqueID];
                 auto& yPointsPotential = yPairs[object->m_uniqueID];
@@ -199,13 +199,12 @@ namespace bruggles {
                 }
                 for (auto& pairObject : pairs) {
                     if (!pairIDs.contains(pairObject.id)) {
-                        result.emplace_back(object, pairObject.object);
+                        //result.emplace_back(object, pairObject.object);
+                        result[object->m_uniqueID].push_back(pairObject.object);
                         pairIDs.insert(pairObject.id);
                     }
                 }
             }
-            
-
 
             return result;
         }
@@ -214,7 +213,7 @@ namespace bruggles {
             // Get pairs
             // calculate collisions for pairs
             //auto t1 = std::chrono::high_resolution_clock::now();
-            std::vector<std::pair<CollisionObject*, CollisionObject*>> result = GetSweepAndPrunePairs();
+            auto result = GetSweepAndPrunePairs();
             //auto t2 = std::chrono::high_resolution_clock::now();
 
             //std::chrono::duration<double, std::milli> ms_double = t2 - t1;
@@ -226,34 +225,40 @@ namespace bruggles {
                 std::vector<Collision> triggers;
                 //t1 = std::chrono::high_resolution_clock::now();
                 std::unordered_map<Uint64, std::unordered_set<Uint64>> computedCollisions{};
-                for (std::pair<CollisionObject*, CollisionObject*>& pair : result) {
-                    auto a = pair.first;
-                    auto b = pair.second;
-                    if (a == b) continue;
-                    if (computedCollisions[a->m_uniqueID].contains(b->m_uniqueID) || computedCollisions[b->m_uniqueID].contains(a->m_uniqueID)) continue;
-                    computedCollisions[a->m_uniqueID].insert(b->m_uniqueID);
-                    computedCollisions[b->m_uniqueID].insert(a->m_uniqueID);
-                    if (a->m_gameObject && !a->m_gameObject->IsActive()) continue;
-                    if (b->m_gameObject && !b->m_gameObject->IsActive()) continue;
+                for (CollisionObject* object : m_objects) {
+                    auto& pairs = result[object->m_uniqueID];
+                    if (pairs.size() < 1) {
+                        continue;
+                    }
+                    for (auto& pairObject : pairs) {
+                        auto a = object;
+                        auto b = pairObject;
+                        if (a == b) continue;
+                        if (computedCollisions[a->m_uniqueID].contains(b->m_uniqueID) || computedCollisions[b->m_uniqueID].contains(a->m_uniqueID)) continue;
+                        computedCollisions[a->m_uniqueID].insert(b->m_uniqueID);
+                        computedCollisions[b->m_uniqueID].insert(a->m_uniqueID);
+                        if (a->m_gameObject && !a->m_gameObject->IsActive()) continue;
+                        if (b->m_gameObject && !b->m_gameObject->IsActive()) continue;
 
-                    if (!a->collider || !b->collider) continue;
+                        if (!a->collider || !b->collider) continue;
 
-                    CollisionPoints points = a->collider->CheckCollision(
-                        &a->GetTransform(),
-                        b->collider,
-                        &b->GetTransform()
-                    );
+                        CollisionPoints points = a->collider->CheckCollision(
+                            &a->GetTransform(),
+                            b->collider,
+                            &b->GetTransform()
+                        );
 
-                    Collision collision = Collision(a, b, points);
+                        Collision collision = Collision(a, b, points);
 
-                    if (points.HasCollision) {
-                        bool trigger = a->IsTrigger || b->IsTrigger;
+                        if (points.HasCollision) {
+                            bool trigger = a->IsTrigger || b->IsTrigger;
 
-                        if (trigger) {
-                            triggers.emplace_back(a, b, points);
-                        }
-                        else {
-                            collisions.emplace_back(a, b, points);
+                            if (trigger) {
+                                triggers.emplace_back(a, b, points);
+                            }
+                            else {
+                                collisions.emplace_back(a, b, points);
+                            }
                         }
                     }
                 }
