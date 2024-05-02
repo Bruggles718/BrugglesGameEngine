@@ -148,12 +148,16 @@ namespace bruggles {
 
 
 
-            QuadTree root = QuadTree(minX, minY, maxX - minX, maxY - minY, 8);
+            m_quadTree = QuadTree(minX, minY, maxX - minX, maxY - minY, 8);
             for (CollisionObject* object : m_objects) {
-                root.Insert(object, tlbrs);
+                m_quadTree.Insert(object, tlbrs);
             }
 
-            return root.GetSweepAndPrunePairs(tlbrs);
+            return m_quadTree.GetSweepAndPrunePairs(tlbrs);
+        }
+
+        void CollisionWorld::RenderQuadTree(Camera* i_camera) {
+            m_quadTree.Render(i_camera);
         }
 
         void CollisionWorld::ResolveCollisions(float i_deltaTime) {

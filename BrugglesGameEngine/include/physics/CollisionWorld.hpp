@@ -5,6 +5,7 @@
 #include "physics/Solver.hpp"
 #include "SDL.h"
 #include <unordered_set>
+#include "QuadTree.hpp"
 
 typedef uint64_t Uint64;
 
@@ -43,9 +44,12 @@ namespace bruggles {
 
             std::vector<std::pair<CollisionObject*, CollisionObject*>> GetSweepAndPrunePairs();
 
+            void RenderQuadTree(Camera* i_camera);
+
         protected:
             std::vector<CollisionObject*> m_objects;
             std::vector<Solver*> m_solvers;
+            QuadTree m_quadTree{0.0f, 0.0f, 0.0f, 0.0f, 6};
 
             Uint64 m_nextUniqueID = 0;
         };

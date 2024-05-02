@@ -12,14 +12,14 @@ namespace bruggles {
 			float w = 0;
 			float h = 0;
 
-			int depth = 4;
+			int depth = 6;
 
 			std::unique_ptr<QuadTree> ne;
 			std::unique_ptr<QuadTree> nw;
 			std::unique_ptr<QuadTree> se;
 			std::unique_ptr<QuadTree> sw;
 
-			int capacity = 3;
+			int capacity = 8;
 			bool divided = false;
 
 			std::vector<CollisionObject*> bodies;
@@ -33,6 +33,8 @@ namespace bruggles {
 			void Divide();
 
 			std::vector<std::pair<CollisionObject*, CollisionObject*>> GetSweepAndPrunePairs(std::unordered_map<Uint64, std::pair<Vector2, Vector2>>& tlbrs);
+
+			void Render(Camera* i_camera);
 		};
 	}
 }

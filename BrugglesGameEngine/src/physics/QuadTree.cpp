@@ -98,6 +98,16 @@ namespace bruggles {
 				return result;
 			}
 
+			std::vector<std::pair<CollisionObject*, CollisionObject*>> naiveResult;
+
+			for (int i = 0; i < bodies.size(); i++) {
+				for (int j = i; j < bodies.size(); j++) {
+					if (j == i) continue;
+					naiveResult.emplace_back(bodies[i], bodies[j]);
+				}
+			}
+			return naiveResult;
+
 			std::vector<EndPoint> xPoints{};
 			std::vector<EndPoint> yPoints{};
 
@@ -220,6 +230,36 @@ namespace bruggles {
 			// std::cout << "result size: " << result.size() << std::endl;
 
 			return result;
+		}
+
+		void QuadTree::Render(Camera* i_camera) {
+			Vector2 pos{ x, y };
+
+			Transform invTf = i_camera->GetInverseTransform();
+			pos.ApplyTransform(&invTf);
+
+			SDL_Rect r{
+				pos.x,
+				pos.y,
+				w,
+				h,
+			};
+
+			SDL_RenderDrawRect(i_camera->m_renderer, &r);
+
+			if (this->ne != nullptr) {
+				this->ne->Render(i_camera);
+			}
+			if (this->nw != nullptr) {
+				this->nw->Render(i_camera);
+			}
+			if (this->se != nullptr) {
+				this->se->Render(i_camera);
+			}
+			if (this->sw != nullptr) {
+				this->sw->Render(i_camera);
+			}
+
 		}
 	}
 }

@@ -263,6 +263,8 @@ namespace bruggles {
             m_physicsWorld.RenderColliders(&m_camera);
         }
 
+        m_physicsWorld.RenderQuadTree(&m_camera);
+
         SDL_RenderPresent(m_renderer);
     }
 
