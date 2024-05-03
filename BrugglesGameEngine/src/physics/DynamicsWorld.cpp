@@ -7,13 +7,15 @@
 namespace bruggles {
     namespace physics {
         void DynamicsWorld::AddRigidbody(Rigidbody* i_object) {
-            i_object->m_uniqueID = GenerateUniqueID();
-            this->m_objects.push_back(i_object);
+            /*i_object->m_uniqueID = GenerateUniqueID();
+            this->m_objects.push_back(i_object);*/
+            AddCollisionObject(i_object);
         }
 
         void DynamicsWorld::RemoveRigidbody(Rigidbody* i_object) {
-            auto itr = std::find(m_objects.begin(), m_objects.end(), i_object);
-            m_objects.erase(itr);
+            /*auto itr = std::find(m_objects.begin(), m_objects.end(), i_object);
+            m_objects.erase(itr);*/
+            RemoveCollisionObject(i_object);
         }
 
         void DynamicsWorld::Step(float i_deltaTime) {

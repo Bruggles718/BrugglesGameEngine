@@ -6,6 +6,7 @@
 #include "Transform.hpp"
 #include "physics/Collision.hpp"
 #include <unordered_map>
+#include "physics/EndPoint.hpp"
 
 namespace bruggles {
     class GameObject;
@@ -33,9 +34,18 @@ namespace bruggles {
 
             void UpdateLastTransform();
 
-            std::pair<Vector2, Vector2> TopLeftBottomRightAABB();
+            void UpdateTopLeftBottomRightAABB();
+
+            EndPoint* GetTop();
+            EndPoint* GetLeft();
+            EndPoint* GetBottom();
+            EndPoint* GetRight();
+
+            bool m_addedEndPoints = false;
 
         protected:
+            
+
             Transform m_transform{
                 Vector2(0, 0),
                 0.0f,
@@ -46,6 +56,13 @@ namespace bruggles {
                 0.0f,
                 Vector2(1, 1)
             };
+
+            std::shared_ptr<EndPoint> m_top;
+            std::shared_ptr<EndPoint> m_left;
+            std::shared_ptr<EndPoint> m_bottom;
+            std::shared_ptr<EndPoint> m_right;
+
+            void SetEndPoint(EndPoint* i_e, float i_value, bool isMin);
         };
     }
 }

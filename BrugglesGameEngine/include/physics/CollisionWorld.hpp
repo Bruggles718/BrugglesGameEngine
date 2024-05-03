@@ -43,18 +43,16 @@ namespace bruggles {
 
             std::unordered_map<Uint64, std::vector<CollisionObject*>> GetSweepAndPrunePairs();
 
+            void RemoveEndPoints(CollisionObject* i_object);
+
         protected:
             std::vector<CollisionObject*> m_objects;
             std::vector<Solver*> m_solvers;
 
-            Uint64 m_nextUniqueID = 0;
-        };
+            std::vector<EndPoint*> m_endPointsX;
+            std::vector<EndPoint*> m_endPointsY;
 
-        struct EndPoint {
-            CollisionObject* object;
-            Uint64 id = 0;
-            float value = 0.0f;
-            bool isMin = false;
+            Uint64 m_nextUniqueID = 0;
         };
     }
 }

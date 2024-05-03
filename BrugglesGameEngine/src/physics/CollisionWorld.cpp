@@ -4,15 +4,32 @@
 #include <iostream>
 #include "GameObject.hpp"
 #include <chrono>
+#include "physics/EndPoint.hpp"
 
 namespace bruggles {
     namespace physics {
+        void CollisionWorld::RemoveEndPoints(CollisionObject* i_object) {
+            if (!i_object->m_addedEndPoints) {
+                return;
+            }
+
+            auto topItr = std::find(m_endPointsY.begin(), m_endPointsY.end(), i_object->GetTop());
+            m_endPointsY.erase(topItr);
+            auto bottomItr = std::find(m_endPointsY.begin(), m_endPointsY.end(), i_object->GetBottom());
+            m_endPointsY.erase(bottomItr);
+            auto leftItr = std::find(m_endPointsX.begin(), m_endPointsX.end(), i_object->GetLeft());
+            m_endPointsX.erase(leftItr);
+            auto rightItr = std::find(m_endPointsX.begin(), m_endPointsX.end(), i_object->GetRight());
+            m_endPointsX.erase(rightItr);
+        }
+
         void CollisionWorld::AddCollisionObject(CollisionObject* i_object) {
             i_object->m_uniqueID = GenerateUniqueID();
             this->m_objects.push_back(i_object);
         }
 
         void CollisionWorld::RemoveCollisionObject(CollisionObject* i_object) {
+            RemoveEndPoints(i_object);
             auto itr = std::find(m_objects.begin(), m_objects.end(), i_object);
             m_objects.erase(itr);
         }
@@ -72,17 +89,17 @@ namespace bruggles {
             points.insert(points.begin() + points.size(), pointToInsert);
         }
 
-        void BinaryInsert(std::vector<EndPoint>& points, EndPoint& pointToInsert) {
+        void BinaryInsert(std::vector<EndPoint*>& points, EndPoint* pointToInsert) {
             int low = 0;
             int high = points.size() - 1;
 
             while (low <= high) {
                 int mid = low + ((high - low) / 2);
-                if (pointToInsert.value == points[mid].value) {
+                if (pointToInsert->value == points[mid]->value) {
                     low = mid + 1;
                     break;
                 }
-                else if (pointToInsert.value > points[mid].value) {
+                else if (pointToInsert->value > points[mid]->value) {
                     low = mid + 1;
                 }
                 else {
@@ -93,115 +110,97 @@ namespace bruggles {
             points.insert(points.begin() + low, pointToInsert);
         }
 
-        void GetPairs(std::vector<EndPoint>& points, std::unordered_map<Uint64, std::vector<EndPoint>>& result) {
+        void GetPairs(std::vector<EndPoint*>& points, std::unordered_map<Uint64, std::vector<EndPoint*>>& result) {
 
             std::vector<Uint64> insideList{};
 
             for (int i = 0; i < points.size(); i++) {
-                EndPoint& point = points[i];
-                if (point.isMin) {
+                EndPoint* point = points[i];
+                if (point->isMin) {
                     for (Uint64 insideID : insideList) {
-                        if (insideID != point.id) {
+                        if (insideID != point->id) {
                             result[insideID].push_back(point);
                         }
                     }
-                    insideList.push_back(point.id);
-
+                    insideList.push_back(point->id);
                 }
                 else {
-                    auto itr = std::find(insideList.begin(), insideList.end(), point.id);
+                    auto itr = std::find(insideList.begin(), insideList.end(), point->id);
                     insideList.erase(itr);
                 }
             }
         }
 
-        std::unordered_map<Uint64, std::vector<CollisionObject*>> CollisionWorld::GetSweepAndPrunePairs() {
+        void InsertionSort(std::vector<EndPoint*>& points) {
+            for (int i = 1; i < points.size(); i++) {
+                EndPoint* x = points[i];
+                int j = i;
+                for (; j > 0; j--) {
+                    if (x->value >= points[j - 1]->value) break;
+                    //std::swap(points[j], points[j - 1]);
+                    points[j] = points[j - 1];
+                }
+                points[j] = x;
+            }
+        }
 
-            std::vector<EndPoint> xPoints{};
-            xPoints.reserve(m_objects.size() * 2);
-            std::vector<EndPoint> yPoints{};
-            yPoints.reserve(m_objects.size() * 2);
+        std::unordered_map<Uint64, std::vector<CollisionObject*>> CollisionWorld::GetSweepAndPrunePairs() {
             for (CollisionObject* object : m_objects) {
                 if (!object->collider) {
                     continue;
                 }
 
-                std::pair<Vector2, Vector2> topLeftBottomRight = object->TopLeftBottomRightAABB();
+                object->UpdateTopLeftBottomRightAABB();
 
-                // Get x min and max
-                // Insert into list
-                // Get y min and max
-                // Insert into second list
-
-                EndPoint minX{
-                    object,
-                    object->m_uniqueID,
-                    topLeftBottomRight.first.x,
-                    true
-                };
-                EndPoint maxX{
-                    object,
-                    object->m_uniqueID,
-                    topLeftBottomRight.second.x,
-                    false
-                };
-                EndPoint minY{
-                    object,
-                    object->m_uniqueID,
-                    topLeftBottomRight.first.y,
-                    true
-                };
-                EndPoint maxY{
-                    object,
-                    object->m_uniqueID,
-                    topLeftBottomRight.second.y,
-                    false
-                };
-
-                BinaryInsert(xPoints, minX);
-                BinaryInsert(xPoints, maxX);
-                BinaryInsert(yPoints, minY);
-                BinaryInsert(yPoints, maxY);
+                if (!object->m_addedEndPoints) {
+                    BinaryInsert(m_endPointsX, object->GetLeft());
+                    BinaryInsert(m_endPointsX,object->GetRight());
+                    BinaryInsert(m_endPointsY, object->GetTop());
+                    BinaryInsert(m_endPointsY,object->GetBottom());
+                    object->m_addedEndPoints = true;
+                }
             }
-            
+
+            InsertionSort(m_endPointsX);
+            InsertionSort(m_endPointsY);
 
             // go through both lists, and compute pairs
             // store map of id to list of ids
             // for id, if id is in both lists, we have a collision
             
-            std::unordered_map<Uint64, std::vector<EndPoint>> xPairs;
-            std::unordered_map<Uint64, std::vector<EndPoint>> yPairs;
+            std::unordered_map<Uint64, std::vector<EndPoint*>> xPairs;
+            std::unordered_map<Uint64, std::vector<EndPoint*>> yPairs;
 
-            GetPairs(xPoints, xPairs);
+            GetPairs(m_endPointsX, xPairs);
 
-            for (EndPoint& e : xPoints) {
-                auto& pairsWithE = xPairs[e.id];
-                for (EndPoint& pairWithE : pairsWithE) {
-                    xPairs[pairWithE.id].push_back(e);
+            for (EndPoint* e : m_endPointsX) {
+                auto& pairsWithE = xPairs[e->id];
+                for (EndPoint* pairWithE : pairsWithE) {
+                    xPairs[pairWithE->id].push_back(e);
                 }
             }
 
-            GetPairs(yPoints, yPairs);
+            GetPairs(m_endPointsY, yPairs);
             
             std::unordered_map<Uint64, std::vector<CollisionObject*>> result{};
             for (CollisionObject* object : m_objects) {
                 auto& xPointsPotential = xPairs[object->m_uniqueID];
                 auto& yPointsPotential = yPairs[object->m_uniqueID];
-                std::vector<EndPoint> pairs{};
+                std::vector<EndPoint*> pairs{};
                 std::unordered_set<Uint64> pairIDs{};
                 for (auto& xE : xPointsPotential) {
                     for (auto& yE : yPointsPotential) {
-                        if (xE.id == yE.id) {
+                        if (xE->id == yE->id) {
                             pairs.push_back(xE);
                             break;
                         }
                     }
                 }
                 for (auto& pairObject : pairs) {
-                    if (!pairIDs.contains(pairObject.id)) {
+                    if (!pairIDs.contains(pairObject->id)) {
                         //result.emplace_back(object, pairObject.object);
-                        result[object->m_uniqueID].push_back(pairObject.object);
-                        pairIDs.insert(pairObject.id);
+                        result[object->m_uniqueID].push_back(pairObject->object);
+                        pairIDs.insert(pairObject->id);
                     }
                 }
             }
@@ -287,6 +286,8 @@ namespace bruggles {
         }
 
         void CollisionWorld::RemoveAllObjects() {
+            m_endPointsX.clear();
+            m_endPointsY.clear();
             m_objects.clear();
             m_nextUniqueID = 0;
         }

@@ -61,6 +61,7 @@
     <ClCompile Include="src\physics\CollisionPoints.cpp" />
     <ClCompile Include="src\physics\CollisionWorld.cpp" />
     <ClCompile Include="src\physics\DynamicsWorld.cpp" />
+    <ClCompile Include="src\physics\EndPoint.cpp" />
     <ClCompile Include="src\physics\HullCollider.cpp" />
     <ClCompile Include="src\physics\ImpulseSolver.cpp" />
     <ClCompile Include="src\physics\PhysicsHelpers.cpp" />
@@ -102,6 +103,7 @@
     <ClInclude Include="include\physics\CollisionPoints.hpp" />
     <ClInclude Include="include\physics\CollisionWorld.hpp" />
     <ClInclude Include="include\physics\DynamicsWorld.hpp" />
+    <ClInclude Include="include\physics\EndPoint.hpp" />
     <ClInclude Include="include\physics\HullCollider.hpp" />
     <ClInclude Include="include\physics\ImpulseSolver.hpp" />
     <ClInclude Include="include\physics\PhysicsHelpers.hpp" />
