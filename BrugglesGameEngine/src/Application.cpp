@@ -366,8 +366,11 @@ namespace bruggles {
             if (m_gameObjectsAtIdxToDestroy.size() > 0) {
                 std::vector<std::shared_ptr<GameObject>> newList;
                 for (int i = 0; i < m_gameObjects.size(); i++) {
-                    if (std::find(m_gameObjectsAtIdxToDestroy.begin(), m_gameObjectsAtIdxToDestroy.end(), i) != m_gameObjectsAtIdxToDestroy.end()) {
+                    if (std::find(m_gameObjectsAtIdxToDestroy.begin(), m_gameObjectsAtIdxToDestroy.end(), i) == m_gameObjectsAtIdxToDestroy.end()) {
                         newList.push_back(m_gameObjects[i]);
+                    }
+                    else {
+                        m_gameObjects[i]->OnGameObjectRemoved();
                     }
                 }
                 m_gameObjectsAtIdxToDestroy.clear();
