@@ -5,9 +5,9 @@
 
 namespace bruggles {
     namespace physics {
-        CollisionPoints CalcCircleCircleCollisionPoints(
-            const CircleCollider* i_a, const Transform* i_ta,
-            const CircleCollider* i_b, const Transform* i_tb
+        CollisionPoints GJKEPA(
+            const Collider* i_a, const Transform* i_ta,
+            const Collider* i_b, const Transform* i_tb
         ) {
             std::pair<bool, Simplex> simplexData = GJK(
                 i_a, i_ta,
@@ -18,19 +18,21 @@ namespace bruggles {
 
             return EPA(simplexData.second, i_a, i_ta, i_b, i_tb);
         }
+        CollisionPoints CalcCircleCircleCollisionPoints(
+            const CircleCollider* i_a, const Transform* i_ta,
+            const CircleCollider* i_b, const Transform* i_tb
+        ) {
+            return GJKEPA(i_a, i_ta, i_b, i_tb);
+        }
         
         CollisionPoints CalcCircleHullCollisionPoints(
             const CircleCollider* i_circleCollider, const Transform* i_tCircleCollider,
             const HullCollider* i_hullCollider, const Transform* i_tHullCollider
         ) {
-            std::pair<bool, Simplex> simplexData = GJK(
+            return GJKEPA(
                 i_circleCollider, i_tCircleCollider,
                 i_hullCollider, i_tHullCollider
             );
-
-            if (!simplexData.first) return CollisionPoints();
-
-            return EPA(simplexData.second, i_circleCollider, i_tCircleCollider, i_hullCollider, i_tHullCollider);
         }
 
         CollisionPoints CalcHullCircleCollisionPoints(
@@ -48,14 +50,10 @@ namespace bruggles {
             const HullCollider* i_a, const Transform* i_ta,
             const HullCollider* i_b, const Transform* i_tb
         ) {
-            std::pair<bool, Simplex> simplexData = GJK(
+            return GJKEPA(
                 i_a, i_ta,
                 i_b, i_tb
             );
-
-            if (!simplexData.first) return CollisionPoints();
-
-            return EPA(simplexData.second, i_a, i_ta, i_b, i_tb);
         }
 
         Vector2 MinkowskiSupport(
